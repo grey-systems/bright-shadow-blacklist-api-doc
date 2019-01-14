@@ -1,6 +1,6 @@
 # Bright Shadow Blacklist API OpenAPI Specification
 
-[![Build Status](https://travis-ci.com/grey-systems/bright-shadow-blacklist-api-doc.svg?branch=master)](https://travis-ci.com/grey-systems/bright-shadow-blacklist-api-doc)
+[![Build Status](https://travis-ci.org/grey-systems/bright-shadow-blacklist-api-doc.svg?branch=master)](https://travis-ci.org/grey-systems/bright-shadow-blacklist-api-doc)
 
 ## Links
 
