@@ -692,11 +692,8 @@ definitions:
                 - "source"
                 - "updated_at"
                 - "first_name"
-                - "middle_name"
                 - "last_name"
                 - "last_name2"
-                - "last_name3"
-                - "last_name4"
                 - "full_name"
                 - "normalized_name"
                 - "nationality"
@@ -743,6 +740,9 @@ definitions:
                     - "city"
                     - "country"
                   properties: 
+                    postal_code: 
+                      type: "string"
+                      example: "28089"
                     summary: 
                       type: "string"
                       example: "C/test, 25, La Habana, Cuba"
@@ -1188,7 +1188,7 @@ definitions:
   CustomBlacklist:
     required: 
       - "id"
-      - "name"
+      - "short_name"
       - "description"
       - "last_updated_on"
       - "total_registries"
