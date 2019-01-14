@@ -24,7 +24,7 @@ info:
     
     * **Official/Public Blacklist**: Manage the lifecycle of official and public blacklist published by different entities including OFAC, EU, UK, etc.. including automatic updates to the registries of the lists.
     * **Custom Blacklist**: Manage custom/internal blacklists, giving the ability to our customers to create/modify/delete records inside custom blacklists. 
-    * **Similar Matching Algorithms**: GreySystems have designed and implemented a full-featured algorithm to semantically search (fuzzy search) and provide an scoring for customers against the different blacklist configured for a customer/entity. 
+    * **Similar Matching Algorithms**: GreySystems have designed and implemented a full-featured algorithm to semantically search (fuzzy search) and provide an scoring for customers against the different blacklist configured for a customer/entity. A full detailed explanation about the matching algorithm can be found at [BLACKLIST MATCHING PLATFORM FOR FINANCIAL ENTITIES BY GreySystems.pdf](https://github.com/grey-systems/bright-shadow-blacklist-api-doc/raw/master/assets/blacklist.pdf)
     * **Whitelists**: Create and manage custom whitelists
     * **Customer Management**: This module can maintain the lifecycle of the customers/entities against the blacklist, providing real time updates when an existent customer is matched against an existing blacklist periodically. 
     * **Notifications**: Receives notifications in a RESTFul way with the latest events happened, like existent customer matched against a blacklist update, duplicated customers, etc...
@@ -77,10 +77,10 @@ info:
     email: developers@greysystems.eu # [Optional] Replace with your contact email
     url: "http://www.greysystems.eu/#contact" # [Optional] Replace with link to your contact form
   license:
-    name: All Rights reserved
-    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+    name: All Rights reserved GreySystems 2019
+    url: "http://www.greysystems.eu"
   x-logo:
-    url: "https://apis.guru/openapi-template/logo.png"
+    url: "https://github.com/grey-systems/bright-shadow-blacklist-api-doc/raw/master/assets/logo.png"
 produces:
   - application/json
   - text/csv
