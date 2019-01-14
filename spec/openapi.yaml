@@ -1,246 +1,1478 @@
-# This is an **example** API to demonstrate features of OpenAPI specification.
-# It doesn't cover all OpenAPI features. For more full example check out: https://github.com/APIs-guru/petstore_extended
-
-swagger: '2.0'
-# You should specify common part of your endpoints in the following format:
-#   <schemes>://<host><basepath>
+swagger: "2.0"
 schemes:
-  - http # Remove if your API doesn't support HTTP
   - https # Remove if your API doesn't support HTTPS
-host: example.com # Replace with your hostname. You can also specify port e.g. example.com:777
-basePath: /api/v1 # Replace with your basePath. Note: SHOULD begin with '/'.
+host: bs-blacklist-staging.greysystems.eu # Replace with your hostname. You can also specify port e.g. example.com:777
+basePath: /v1 # Replace with your basePath. Note: SHOULD begin with '/'.
 info:
-  # Describe your API here, you can use GFM (https://guides.github.com/features/mastering-markdown) here
   description: |
-    This is an **example** API to demonstrate features of OpenAPI specification
-    # Introduction
-    This specification is intended to to be a good starting point for describing your API in 
-    [OpenAPI/Swagger format](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md).
-    It also demonstrates features of [generator-openapi-repo](https://github.com/Rebilly/generator-openapi-repo) tool and 
-    [ReDoc](https://github.com/Rebilly/ReDoc) documentation engine. So beyond the standard OpenAPI syntax we use a few 
-    [vendor extensions](https://github.com/Rebilly/ReDoc/blob/master/docs/redoc-vendor-extensions.md).
+    This page contains the documentation on how to use Bright Shadow API
     
-    # OpenAPI Specification
-    The goal of The OpenAPI Specification is to define a standard, language-agnostic interface to REST APIs which
-    allows both humans and computers to discover and understand the capabilities of the service without access to source
-    code, documentation, or through network traffic inspection. When properly defined via OpenAPI, a consumer can 
-    understand and interact with the remote service with a minimal amount of implementation logic. Similar to what
-    interfaces have done for lower-level programming, OpenAPI removes the guesswork in calling the service.
+    **API is in beta version, breaking changes may be introduced before the final release candidate is released**
+    # Introduction
+    GreySystems offers a full Anti-Money-Laundering (AML) set of APIs for financial services, called Brigth Shadow. This page focus on the specification of Blacklist Module API of Brigh Shadow. 
+    
+    The BrigthShadow Blacklist API is built on top of HTTP:
+    * RESTFul. 
+    * Predictable resource URLs.  
+    * It returns HTTP response codes to indicate errors.
+    * It also accepts and returns JSON in the HTTP body. 
+    
+    You can use your favorite HTTP/REST library for your programming language to consume this API. 
 
-  version: '1.0.0' # Your API version
+    # Brigth Shadow Blacklist Module
+    Bright Shadow Blacklist Module is an integrated set of APIs to manage the entire lifecycle of the Blacklist AML processes inside a financial institution allowing the following features: 
+    
+    * **Official/Public Blacklist**: Manage the lifecycle of official and public blacklist published by different entities including OFAC, EU, UK, etc.. including automatic updates to the registries of the lists.
+    * **Custom Blacklist**: Manage custom/internal blacklists, giving the ability to our customers to create/modify/delete records inside custom blacklists. 
+    * **Similar Matching Algorithms**: GreySystems have designed and implemented a full-featured algorithm to semantically search (fuzzy search) and provide an scoring for customers against the different blacklist configured for a customer/entity. 
+    * **Whitelists**: Create and manage custom whitelists
+    * **Customer Management**: This module can maintain the lifecycle of the customers/entities against the blacklist, providing real time updates when an existent customer is matched against an existing blacklist periodically. 
+    * **Notifications**: Receives notifications in a RESTFul way with the latest events happened, like existent customer matched against a blacklist update, duplicated customers, etc...
+    
+     # Authentication
+    
+    All Brigth Shadow APIs, including this one, use [OpenId Connect](http://openid.net) protocol to authenticate customers. Specifically the security tokens used are JWT tokens. 
+    
+    To issue new tokens, you have to use the GreySystems OpenId compliant server located at https://identity.greysystems.eu (for more info please check [GreySystems Identity Server Doc](https://grey-systems.github.io/gs-identity-doc/))
+    
+    At functional level there are 2 types of tokens: 
+    
+    * **User Token**: Gets an  `access_token` issued on behalf of an end-user. To get an user access_token you have to implement the [Authorization Code Flow](https://www.keycloak.org/docs/3.3/server_admin/topics/sso-protocols/oidc.html). 
+    
+  
+    
+    ![alt text](https://rograce.github.io/openid-connect-documentation/images/OIDCAuthCodeFlow.jpg "Logo Title Text 1")
+    
+    * **Service Token**: Gets an `access_token` issued to a  non end-user. Very useful for services that calls the API without an user logged in, background processes, etc... To get a Service token you have to implement the [Direct Access Grants](https://www.keycloak.org/docs/3.3/server_admin/topics/sso-protocols/oidc.html), which a REST based worflow to obtain programatically a token without user intervention. 
+    
+    **What kind of token do I have to use**? 
+    
+    It's up to the caller decide what type of token and authorization workflow need to be used depending on the requirements at his side (integrated in an app user-based, or system-based process), as the API accepts both of them. 
+  
+    **How I use the tokens?**
+     As stated in the introduction, both tokens types are JWT tokens, and you should set that token in the HTTP `Authorization` Header of the API call in this way: 
+    
+    ```
+    Authorization: Bearer {the_token}
+    ```
+    
+    # Common HTTP Error Responses
+    
+    The MTC Rest API uses the following common HTTP status codes to communicate general issues or errors to the clients: 
+    
+    * HTTP  **401** (Non authorized): The token provided is expired, inexistent or non-valid
+    * HTTP **403** (Forbidden): Token is valid, however the holder of the token is not authorised to perform the call
+    * HTTP **400** (Invalid Request): The request provided is invalid (request is not well formed, a mandatory field is not provided, etc..). 
+    * HTTP **500** (Internal Server Error): Some internal component has failed to process your request. Please notify about this error to GreySystems team. 
+    
+
+  version: "1.0.0-beta" # Your API version
   # It can be any string but it is better to use semantic versioning: http://semver.org/
   # Warning: OpenAPI require version to be string, but without quotation YAML can recognize it as number.
 
-  title: Example.com # Replace with your API title
-  # Keep it simple. Don't add "API" or version at the end of the string.
+  title: GreySystems BrightShadow Blacklist
 
-  termsOfService: 'https://example.com/terms/' # [Optional] Replace with an URL to your ToS
+  termsOfService: "https://www.greysystems.eu" # [Optional] Replace with an URL to your ToS
   contact:
-    email: contact@example.com # [Optional] Replace with your contact email
-    url: 'http://example.com/contact' # [Optional] Replace with link to your contact form
+    email: developers@greysystems.eu # [Optional] Replace with your contact email
+    url: "http://www.greysystems.eu/#contact" # [Optional] Replace with link to your contact form
   license:
-    name: Apache 2.0
-    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+    name: All Rights reserved
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
   x-logo:
-    url: 'https://apis.guru/openapi-template/logo.png'
-externalDocs:
-  description: Find out how to create Github repo for your OpenAPI spec.
-  url: 'https://github.com/Rebilly/generator-openapi-repo'
+    url: "https://apis.guru/openapi-template/logo.png"
 produces:
-  # List of mime types your API endpoints can return.
-  # This is a global default. You can OVERWRITE it in each specific operation.
-  # Remove the ones not used in your API
   - application/json
-  - application/xml
   - text/csv
-  # you can add any mime type your API produces to the list
+  
 consumes:
   # List of mime types your API endpoints consumes.
   # This is a global default. You can OVERWRITE it in each specific operation.
   # Remove the ones not supported by your API
   - application/json
-  - application/xml
-  # you can add any mime type your API consumes to the list
-
-# A list of tags used by the specification with additional metadata.
-# The order of the tags can be used to reflect on their order by the parsing tools.
+  - text/csv
 tags:
-  - name: Echo
-    description: Example echo operations
-  - name: User
-    description: Operations about user
+  - name: Matching
+    description: Match operations against blacklists
+  - name: Public Blacklists
+    description: Official/public Blacklist operations
+  - name: Custom Blacklists
+    description: Custom Blacklists operations
+  - name: Whitelists
+    description: Whitelist management operations
+  - name: Customers
+    description: Customer management operations
+  - name: Notifications
+    description: Notification management operations
+  
+    
 # Security scheme definitions that can be used across the specification.
 securityDefinitions:
-  main_auth: # security definition name (you can name it as you want)
-    type: oauth2 # authorization type, one of: oauth2, basic, apiKey
-    # the following options are specific to oauth2 type
-    authorizationUrl: 'http://example.com/api/oauth/dialog'
-    flow: implicit
-    scopes:
-      'read:users': read users info
-      'write:users': modify or remove users
-  api_key: # security definition name (you can name it as you want)
+  JWT:
+    description: You can obtain a JSON Web Token (`access_token`), using our OpenID Connect Authorizations Server
     type: apiKey
-    # The following options are specific to apiKey type
-    in: header # Where API key will be passed: header or query
-    name: api_key # API key parameter name
-  basic_auth: # security definition name (you can name it as you want)
-    type: basic
-
-# Holds the relative paths to the individual endpoints. The path is appended to the
-# basePath in order to construct the full URL. 
-paths:
-  '/users/{username}': # path parameter in curly braces
-    # documentation for GET operation for this path
+    name: 'Authorization: Bearer access_token'
+    in: header
     
-    # parameters list that are used with each operation for this path
-    parameters:
-      - name: pretty_print
-        in: query # place where parameter is passed: path, header, query or body, formData
-        description: Pretty print response
-        # type of the parameter: string, number, integer, boolean, array
-        type: boolean
+      
+security: 
+  - JWT: []
+
+
+paths:
+
+  "/event/{id}/ack":
+    post: 
+      tags: 
+        - Notifications
+      summary: Acknowledge an existent event
+      operationId: ackNotification
+      description: | 
+        Marks an event as acknowledged, so it will not be returned anymore in the `GET /event` method. 
+        
+      parameters: 
+        - name: id
+          in: path
+          description: the id of the event to be acked 
+          type: string
+          required: true
+          
+      responses: 
+        "200": 
+          description: Success, event is acked
+        "404":
+          description: The event identified by id does not exists
+          
+      
+  "/event":
     get:
       tags:
-        - User
-      
-      # summary is up to 120 symbold but we recommend to be shortest as possible
-      summary: Get user by user name
-      
-      # you can use GFM in operation description too: https://guides.github.com/features/mastering-markdown
+       - Notifications
+      summary: gets all non acknowledged notifications
+      operationId: getNotifications
       description: | 
-        Some description of the operation. 
-        You can use `markdown` here.
+        Returns all events that are not yet acknowledged. 
+        
+        The `event_info` type is variable depending on the `event_type` raised, so the consumer should allow for dynamic types on this attributes. 
+        
+        ### Available Events
+        
+        * `CustomerBlacklistedOnUpdate`: Any time an official blacklist is updated (Creation/update or removal or records), the platform will verify those modifications against the current customer database, and if some customer is matched against the modifications (using the default matching configuration), it will be raised as notification. 
+        
+        * More event types will be added in the future
+        
+        The current response example below determiens how the `event_info` looks for an event of this type. 
+        
+        **Note that when an event is acknowledged, it will no longer be available for consume through this method**
+        
+      produces:
+        - application/json
+      responses: 
+        "200": 
+          description: Success
+          schema:
+            type: array
+            items: 
+              $ref: '#/definitions/NotificationEvent'
+
+  "/whitelist": 
+    get:
+      tags:
+       - Whitelists
+      summary: gets all records of the whitelist
+      operationId: getWhitelistRecords
+      description: | 
+        Use carefully this operation, as it will return ALL records within the whitelist. If the whitelist number of records is quite big, it will take a considerably time to be downloaded depending on the bandwith used.
+      produces:
+        - application/json
+      responses: 
+        "200": 
+          description: Success
+          schema:
+            type: array
+            items: 
+              $ref: '#/definitions/WhitelistGet'
+         
+    post:
+      tags:
+       - Whitelists
+      summary: creates a records within a custom blacklist
+      operationId: createWhitelistRecord
+      description: | 
+        A whitelist record is a filter match so: 
+          * if the matching algorithm found a record in the whitelist that matches 100% the value of the filter, it will set the whitelist flag to `true` in the response, so the caller will know that altough a record is matched against the blacklist is already whitelisted
+          * the filter can specify several parameters that will be used as `AND` terms, so the algorithm will match a whitelist if all parameters match. 
+          * **Special Case**: if id filter is used, only this filter will be used, so the create whitelist record will reject to create records with another parameter than id if id is specified.
+          
+          The available values for filters are currenty: 
+          
+          * `full_name`
+          * `documentNumber`
+          * `id`
+        
+        **It's important to note that there is no method to modify a whitelist record, so the user will have to perform a delete/create operation for this purpose** 
       
-      # operationId should be unique across the whole specification
-      operationId: getUserByName
-      
-      # list of parameters for the operation
-      parameters:
-        - name: username
+      parameters: 
+        - name: record
+          in: body
+          description: the record to create
+          required: true
+          schema: 
+            $ref: '#/definitions/WhitelistPost'
+      produces:
+        - application/json
+      responses: 
+        "201": 
+          description: Success
+          schema: 
+            $ref: '#/definitions/GenericCreatedDto'
+        "400": 
+          description: Invalid Request
+          schema: 
+            $ref: '#/definitions/Error'
+            
+  "/whitelist/{record}":
+    get: 
+      tags: 
+        - Whitelists
+      summary: Gets a whitelist record
+      description: | 
+       Gets a single whitelist record
+      operationId: getWhitelitRecordById
+      parameters: 
+        - name: record
+          description: record id
           in: path
-          description: 'The name that needs to be fetched'
           required: true
           type: string
-        - name: with_email
-          in: query
-          description: Filter users without email
-          type: boolean
+      produces:
+        - application/json
+      responses: 
+        "200": 
+          description: Success
+          schema: 
+            $ref: '#/definitions/WhitelistGet'
+        "404": 
+          description: The whitelist record identified by {id} does not exist
+    delete: 
+      tags: 
+        - Whitelists
+      summary: Deletes a whitelist record
+      description: | 
+       Gets a single whitelist record
+      operationId: deleteWhitelitRecordById
+      parameters: 
+        - name: record
+          description: record id
+          in: path
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses: 
+        "200": 
+          description: Success
+          schema: 
+            $ref: '#/definitions/WhitelistGet'
+        "404": 
+          description: The whitelist record identified by {id} does not exist
+
+  "/blacklist/public":
+    get:
+      tags:
+        - Public Blacklists
+      summary: Gets the status of the public blacklists
+      operationId: getBlackListStatus
+      produces: 
+        - application/json
+      responses: 
+        "200":
+          description: Success
+          schema:
+            type: array
+            items: 
+              $ref: '#/definitions/BlacklistStatus'
+    
+  
+  "/blacklist/custom": 
+    get:
+      tags:
+       - Custom Blacklists
+      summary: Gets the list of custom blacklists
+      operationId: getCustomBlacklists
+      produces:
+        - application/json
+      responses: 
+        "200": 
+          description: Success
+          schema:
+            type: array
+            items: 
+              $ref: '#/definitions/CustomBlacklist'
+    post:
+      tags:
+       - Custom Blacklists
+      summary: Creates a custom blacklist
+      description: | 
+        Creates a custom blacklist in the system. 
+        
+        * `short_name` cannot be duplicated with any other custom blacklist created
+        * `short_name` and description are mandatory
       
-      # security schemas applied to this operation
-      security:
-        - main_auth:
-          - 'read:users' # for auth2 provide list of scopes here
-        - api_key: []
+        It returns an unique identifier (UUID) for the just created blacklist
+        
+      operationId: createCustomBlacklist
+      parameters: 
+        - name: customBlacklist
+          in: body
+          required: true
+          schema: 
+            $ref: '#/definitions/CustomBlacklistPost'
+      produces:
+        - application/json
+      responses: 
+        "201": 
+          description: Success
+          schema:
+            $ref: '#/definitions/GenericCreatedDto'
+        "400": 
+          description: Invalid request
+          schema: 
+            $ref: '#/definitions/Error'
+    
+  "/blacklist/custom/{id}":     
+    put:
+      tags:
+       - Custom Blacklists
+      summary: Modifies a custom blacklist
+      description: | 
+        Modifies an existent custom blacklist in the system. 
+        
+        * `short_name` cannot be duplicated with any other custom blacklist created
+        * `short_name` and description are mandatory
+      
+        It returns an unique identifier (UUID) for the just created blacklist
+        
+      operationId: modifyCustomBlacklist
+      parameters: 
+        - name: id
+          in: path
+          required: true
+          type: string
+          
+        - name: customBlacklist
+          in: body
+          required: true
+          schema: 
+            $ref: '#/definitions/CustomBlacklistPost'
+      produces:
+        - application/json
+      responses: 
+        "200": 
+          description: Success
+        "404": 
+          description: The custom blacklist identified by {id} does not exist
+        "400": 
+          description: Invalid request
+          schema: 
+            $ref: '#/definitions/Error'
+            
+    delete:
+      tags:
+       - Custom Blacklists
+      summary: Deactivate a custom blacklist
+      description: | 
+        **Deactivate a custom blacklist**. It's important to note that the delete method will not 
+        physically delete a blacklist, while it deactivate the custom blacklist (it will not be used by the matching algorithms)
+      operationId: inactiveCustomBlacklist
+      parameters: 
+        - name: id
+          in: path
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses: 
+        "200": 
+          description: Success
+        "404": 
+          description: The custom blacklist identified by {id} does not exist
+          
+  "/blacklist/custom/{id}/record": 
+    get:
+      tags:
+       - Custom Blacklists
+      summary: gets all records of a custom blacklist
+      operationId: getBlackListRecords
+      description: | 
+        Use carefully this operation, as it will return ALL records within a custom blacklist. If the blacklist number of records is quite big, it will take a considerably time to be downloaded depending on the bandwith used.
+      parameters: 
+        - name: id
+          in: path
+          description: id of the blacklist to which the record belongs to
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses: 
+        "200": 
+          description: Success
+        "404": 
+          description: The custom blacklist identified by {id} does not exist or the record identified by {idRecord} does not exists
+    post:
+      tags:
+       - Custom Blacklists
+      summary: creates a records within a custom blacklist
+      operationId: createBlackListRecords
+      description: | 
+        Creates a blacklist record within the custom blacklist. 
+        
+        A custom blaclist is created using a pseudo filter match, and it will be treated in the same way as public blacklist records by the matching algorithm, so you can create it using the same properties as the ones given for the public/official blacklist
+        
+         At least `first_name` or a document (with document number) is required
+        
+        **It's important to note that there is no method to modify a custom blacklist, so the user will have to perform a delete/create operation for this purpose** 
+        
+       
+      
+      parameters: 
+        - name: id
+          in: path
+          description: id of the blacklist to which the record belongs to
+          required: true
+          type: string
+        - name: record
+          in: body
+          description: the record to create
+          required: true
+          schema: 
+            $ref: '#/definitions/CustomBlacklistRecord'
+      produces:
+        - application/json
+      responses: 
+        "200": 
+          description: Success
+          schema: 
+            $ref: '#/definitions/GenericCreatedDto'
+        "404": 
+          description: The custom blacklist identified by {id} does not exist 
+        "400": 
+          description: At least `first_name` or a document (with document number) is required.
+          schema: 
+            $ref: '#/definitions/Error'
+          
+  "/blacklist/custom/{id}/record/{idRecord}": 
+    delete:
+      tags:
+       - Custom Blacklists
+      summary: Deletes a blacklist record
+      operationId: deleteBlackListRecord
+      parameters: 
+        - name: id
+          in: path
+          description: id of the blacklist to which the record belongs to
+          required: true
+          type: string
+        - name: idRecord
+          description: id of the record to delete
+          in: path
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses: 
+        "200": 
+          description: Success
+        "404": 
+          description: The custom blacklist identified by {id} does not exist or the record identified by {idRecord} does not exists
+        
+  
+  
+  "/customer":
+    post:
+      tags:
+        - Customers
+      summary: Notify the creation/modification of a customer
+      description: | 
+        Creates/Modify a customer registry (Depending if the `id` property is given and matched against a registry in the database of customers). 
+        
+        `id` must be an unique identifier for customer. 
+        
+        All properties, except `id` are optional.
+      operationId: notifyCustomer
+        # overwriting default global produces
+      produces:
+        - application/json
+      parameters: 
+        - name: customer
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/CustomerNotify'
+      responses:
+        "201": 
+          description: Success, a new customer has been created
+        "200": 
+          description: Success, an existent customer has been modified
+  "/customer/{id}": 
+    get: 
+      tags:
+       - Customers
+      summary: Gets a customer registry
+      description: | 
+          Gets a customer registry stored in the customer's registries
+      operationId: getCustomer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      responses:
+        "200": 
+          description: Customer found
+          schema:
+            $ref: '#/definitions/Customer'
+        "404": 
+          description: Customer not found
+
+  "/match/config": 
+    get: 
+      tags: 
+        - Matching
+      summary: Gets default configuration for matching algorithm
+      
+      description: | 
+        Gets the default configuration used for the matching algorithm. 
+        
+        Note that this configuration can be overriden in the `POST /match` operation in a per-request basis. 
+      operationId: getMatchConfiguration
       # overwriting default global produces
       produces:
         - application/json
       responses: # list of responses
-        '200':
-          description: Success
+        "200":
+          description: Success.
           schema: # response schema can be specified for each response
-            $ref: '#/definitions/User'
-          examples:
-          # response samples for each type operation produces
-            application/json:
-              username: user1
-              email: user@example.com
-        '403':
-          description: Forbidden
-        '404':
-          description: User not found
-    # documentation for PUT operation for this path
+            $ref: "#/definitions/MatchConfigurationGet"
     put:
-      tags:
-        - User
-      summary: Updated user
-      description: This can only be done by the logged in user.
-      operationId: updateUser
-      produces:
-        - application/json
-      parameters:
-        - name: username
-          in: path
-          description: The name that needs to be updated
+      tags: 
+        - Matching
+      summary: Modifies default configuration for matching algorithm
+      description: Modifies the default configuration used for the matching algorithm
+      parameters: 
+        - name: matchConfiguration
+          in: body
           required: true
-          type: string
-        - in: body
-          name: body
-          description: Updated user object
-          required: true
-          # for body parameter you should specify request schema instead of type
           schema:
-            $ref: '#/definitions/User'
-      security:
-        - main_auth:
-          - 'write:users'
+            $ref: '#/definitions/MatchConfiguration'
       responses:
-        '200':
-          description: OK
-        '400':
-          description: Invalid user supplied
-        '404':
-          description: User not found
-  
-  '/echo':
+        "204": 
+          description: Success, configuration changed
+      
+  "/match":
     post:
       tags:
-        - Echo
-      summary: Echo test
-      description: Receive the exact message you've sent
-      operationId: echo
+        - Matching
+      summary: Perform a matching online operation against multiple blacklists
+      description: |
+        Performs a matching operation against the blacklists configured (both official and custom) using the filters given as input to the API. Only 1 filter is strictly mandatory. 
+        
+        As this moment, only `full_name` filter (as showed in the example below) is mandatory. 
+        
+        If any other request parameter is not given, the matching algorithm will use the default values configured in `/match/configuration` path. 
+        
+        Response: 
+        
+        * `max_scoring`:Max Score value detected by the algorithm. 
+          * `total` is the maximum between `term` and `similar` score
+        * `filters_applied`: List of the filters applied before finding matchs to the terms of the search
+        * `whitelist**`: if `whitelisted = true`, it will return the id of the list in which the search has hitted and the registry found. **note that even if a registry is whitelisted, you will obtain results against a blacklist and it's up to the caller to evaluate if a whitelisted result has impact on his processes.
+        * `hits`: List of search results with all the info in the registry of the blacklist
+
+      operationId: match
+
+      # list of parameters for the operation
       parameters:
-        - name: message
+        - name: matchRequest
           in: body
-          description: 'Echo payload'
           required: true
           schema:
-            type: string
-            example: 'Hello world!'
-      security:
-        - api_key: []
-      responses:
-        '200':
-          description: 'OK'
-          examples:
-            'application/json': 'Hello world!'
+            $ref: '#/definitions/MatchRequest'
+      # overwriting default global produces
+      produces:
+        - application/json
+      responses: # list of responses
+        "200":
+          description: Success.
+          schema: # response schema can be specified for each response
+            $ref: "#/definitions/MatchResponse"
+        "400":
+          description: Invalid Request, response contains the details of the error (mandatory field, semantic search not well formed, etc..)
           schema:
-            type: string
-          # document headers for this response
-          headers:
-            X-Rate-Limit: # Header name
-              type: integer # Header value type
-              format: int32 # Header value format
-              description: calls per hour allowed by the user
-            X-Expires-After:
-              type: string
-              format: date-time
-              description: date in UTC when token expires
+            $ref: '#/definitions/Error'
+    
 # An object to hold data types that can be consumed and produced by operations.
 # These data types can be primitives, arrays or models.
 definitions:
-  Email:
-    description: User email address
-    type: string
-    format: email
-    example: john.smith@example.com
-  User:
+  MatchResponse:
+    description: MatchResponse
+    required: 
+    - "response_id"
+    - "response_date"
+    - "max_scoring"
+    - "filters_applied"
+    - "hits"
+    properties: 
+    
+      response_id: 
+        type: "string"
+        example: "512ee1da-1ac3-4289-936f-2c8c75860b8b"
+      response_date: 
+        type: "string"
+        example: "2019-01-14T02:07:26+00:00"
+      whitelisted: 
+        type: "boolean"
+        example: false
+      whitelist_id: 
+        type: "string"
+        example: "e1255f6f-a18c-4e06-9992-7d8ef932b6b6"
+      whitelist_registry_id: 
+        type: "string"
+        example: "e1255f6f-a18c-4e06-9992-7d8ef932b6b9"
+      max_scoring: 
+        required: 
+          - "total"
+          - "terms"
+          - "similar"
+        properties: 
+          total: 
+            type: "number"
+            example: 0.9
+          terms: 
+            type: "number"
+            example: 0.9
+          similar: 
+            type: "number"
+            example: 0.78
+        type: "object"
+      filters_applied: 
+        type: "array"
+        items: 
+          type: "string"
+        example: 
+          - "normalized"
+          - "ordered"
+      hits: 
+        type: "array"
+        items: 
+          type: "object"
+          properties: 
+            blacklist: 
+              type: "string"
+              example: "OFAC"
+            scoring: 
+              required: 
+                - "total"
+                - "terms"
+                - "similar"
+              properties: 
+                total: 
+                  type: "number"
+                  example: 0.9
+                terms: 
+                  type: "number"
+                  example: 0.9
+                similar: 
+                  type: "number"
+                  example: 0.78
+              type: "object"
+            registry: 
+              required: 
+                - "id"
+                - "source"
+                - "updated_at"
+                - "first_name"
+                - "middle_name"
+                - "last_name"
+                - "last_name2"
+                - "last_name3"
+                - "last_name4"
+                - "full_name"
+                - "normalized_name"
+                - "nationality"
+                - "address"
+                - "title"
+                - "sanctioned_program"
+                - "sanction_summary"
+                - "type"
+                - "additional_properties"
+              properties: 
+                id: 
+                  type: "string"
+                  example: "us-ofac.5a1ab56ddebdcb25ac6e6f3fbf59856aa42ecad2"
+                source: 
+                  type: "string"
+                  example: "OFAC"
+                updated_at: 
+                  type: "string"
+                  example: "2019-01-14T02:07:26+00:00"
+                first_name: 
+                  type: "string"
+                  example: "Juan"
+                last_name: 
+                  type: "string"
+                  example: "García"
+                last_name2: 
+                  type: "string"
+                  example: "De los Santos"
+                full_name: 
+                  type: "string"
+                  example: "Juan García De los Santos"
+                normalized_name: 
+                  type: "string"
+                  example: "Juan Garcia Santos"
+                nationality: 
+                  type: "string"
+                  example: "CUB"
+                address: 
+                  required: 
+                    - "summary"
+                    - "street"
+                    - "number"
+                    - "postal_code"
+                    - "city"
+                    - "country"
+                  properties: 
+                    summary: 
+                      type: "string"
+                      example: "C/test, 25, La Habana, Cuba"
+                    street: 
+                      type: "string"
+                      example: "Test"
+                    number: 
+                      type: "string"
+                      example: "25"
+                    city: 
+                      type: "string"
+                      example: "La Habana"
+                    country: 
+                      type: "string"
+                      example: "CUB"
+                  type: "object"
+                title: 
+                  type: "string"
+                  example: "Minister of State for Special Affairs, Land and Resettlement Program"
+                sanctioned_program: 
+                  type: "string"
+                  example: "us-ofac/CUBA"
+                sanction_summary: 
+                  type: "string"
+                  example: "Also identified as National Security Advisor"
+                type: 
+                  type: "string"
+                  example: "individual"
+                additional_properties: 
+                  type: "array"
+                  items: 
+                    type: "object"
+                    properties: 
+                      photo_link: 
+                        type: "string"
+                        example: "http://xxxx.com/url.jpg"
+              type: "object"
+              
+  CustomBlacklistRecord: 
+    properties: 
+      first_name: 
+        type: "string"
+        example: "Juan"
+      last_name: 
+        type: "string"
+        example: "García"
+      last_name2: 
+        type: "string"
+        example: "De los Santos"
+      full_name: 
+        type: "string"
+        example: "Juan García De los Santos"
+      nationality: 
+        type: "string"
+        example: "CUB"
+      documents: 
+        type: "array"
+        items: 
+          type: "object"
+          properties: 
+            type: 
+              type: "string"
+              example: "passport"
+            number: 
+              type: "string"
+              example: "123412341234"
+            valid_until: 
+              type: "string"
+              example: "2020-01-01"
+            issued_at: 
+              type: "string"
+              example: "2015-01-01"
+            issued_country: 
+              type: "string"
+              example: "ESP"
+            issued_by: 
+              type: "string"
+              example: "Policia Española"
+      address: 
+        properties: 
+          summary: 
+            type: "string"
+            example: "C/test, 25, La Habana, Cuba"
+          street: 
+            type: "string"
+            example: "Test"
+          number: 
+            type: "string"
+            example: "25"
+          city: 
+            type: "string"
+            example: "La Habana"
+          country: 
+            type: "string"
+            example: "CUB"
+        type: "object"
+      title: 
+        type: "string"
+        example: "Minister of State for Special Affairs, Land and Resettlement Program"
+      sanctioned_program: 
+        type: "string"
+        example: "us-ofac/CUBA"
+      sanction_summary: 
+        type: "string"
+        example: "Also identified as National Security Advisor"
+      type: 
+        type: "string"
+        example: "individual"
+      additional_properties: 
+        type: "array"
+        items: 
+          type: "object"
+          properties: 
+            photo_link: 
+              type: "string"
+              example: "http://xxxx.com/url.jpg"
+    type: "object"
+  MatchRequest:
+    description: MatchRequest
     type: object
+    required: 
+    - "filters"
+    properties: 
+      idEntity: 
+        type: "string"
+        example: "TheIdOfYourCustomerIfExists"
+      min_scoring: 
+        type: "number"
+        example: 0
+      filters: 
+        type: "array"
+        items: 
+          type: "object"
+          properties: 
+            full_name: 
+              type: "string"
+              example: "Juan Garcia Cortes"
+      blacklists: 
+        type: "array"
+        items: 
+          type: "string"
+        example: 
+          - "OFAC"
+          - "UK"
+  Error:
+    type: object
+    required:
+      - code
+      - message
     properties:
-      username:
-        description: User supplied username
+      code:
         type: string
-        minLength: 4
-        example: John78
-      firstName:
-        description: User first name
-        type: string
-        minLength: 1
-        example: John
-      lastName:
-        description: User last name
-        type: string
-        minLength: 1
-        example: Smith
-      email:
-        $ref: '#/definitions/Email'
+      message:
+        type: string   
+  MatchConfiguration:
+    required: 
+      - "filters"
+      - "search_blacklists"
+      - "min_score"
+      - "max_expansions"
+      - "use_whitelists"
+    properties: 
+      filters: 
+        type: "array"
+        items: 
+          type: "string"
+        example: 
+          - "ordered"
+          - "normalize"
+      search_blacklists: 
+        type: "array"
+        items: 
+          type: "string"
+        example: 
+          - "OFAC"
+          - "UK"
+      min_score: 
+        type: "number"
+        example: 0.5
+      max_expansions: 
+        type: "number"
+        example: 3
+      use_whitelists: 
+        type: "boolean"
+        example: true
+  CustomerNotify: 
+    properties: 
+      id: 
+        type: "string"
+        example: "UniqueIdOfTheCustomer"
+      fist_name: 
+        type: "string"
+        example: "Juan"
+      middle_name: 
+        type: "string"
+        example: "José"
+      last_name: 
+        type: "string"
+        example: "Perez"
+      last_name2: 
+        type: "string"
+        example: "Lozano"
+      type: 
+        type: "string"
+        example: "individual"
+      address: 
+        required: 
+          - "street"
+          - "number"
+          - "postal_code"
+          - "city"
+          - "country"
+        properties: 
+          street: 
+            type: "string"
+            example: "Street"
+          number: 
+            type: "string"
+            example: "4, 5B"
+          postal_code: 
+            type: "string"
+            example: "1234"
+          city: 
+            type: "string"
+            example: "Madrid"
+          country: 
+            type: "string"
+            example: "ESP"
+        type: "object"
+      nationality: 
+        type: "string"
+        example: "ESP"
+      date_birth: 
+        type: "string"
+        example: "1984-01-14T02:07:26+00:00"
+      city_birth: 
+        type: "string"
+        example: "Madrid"
+      civil_status: 
+        type: "string"
+        example: "Single"
+      sex: 
+        type: "string"
+        example: "male"
+      phone1: 
+        type: "string"
+        example: "+34 665467464"
+      email: 
+        type: "string"
+        example: "test@test.com"
+      email2: 
+        type: "string"
+        example: "test@test3.com"
+      occupation: 
+        type: "string"
+        example: "Developer"
+      documents: 
+        type: "array"
+        items: 
+          type: "object"
+          properties: 
+            type: 
+              type: "string"
+              example: "passport"
+            number: 
+              type: "string"
+              example: "123412341234"
+            valid_until: 
+              type: "string"
+              example: "2020-01-01"
+            issued_at: 
+              type: "string"
+              example: "2015-01-01"
+            issued_country: 
+              type: "string"
+              example: "ESP"
+            issued_by: 
+              type: "string"
+              example: "Policia Española"
+            images: 
+              type: "array"
+              items: 
+                type: "string"
+              example: 
+                - "http://images.client.com/1234123412341234"
+                - "http://images.client.com/1234123412341235"
+
+  Customer:
+    required: 
+      - "id"
+    properties: 
+      id: 
+        type: "string"
+        example: "UniqueIdOfTheCustomer"
+      fist_name: 
+        type: "string"
+        example: "Juan"
+      middle_name: 
+        type: "string"
+        example: "José"
+      last_name: 
+        type: "string"
+        example: "Perez"
+      last_name2: 
+        type: "string"
+        example: "Lozano"
+      type: 
+        type: "string"
+        example: "individual"
+      address: 
+        required: 
+          - "street"
+          - "number"
+          - "postal_code"
+          - "city"
+          - "country"
+        properties: 
+          street: 
+            type: "string"
+            example: "Street"
+          number: 
+            type: "string"
+            example: "4, 5B"
+          postal_code: 
+            type: "string"
+            example: "1234"
+          city: 
+            type: "string"
+            example: "Madrid"
+          country: 
+            type: "string"
+            example: "ESP"
+        type: "object"
+      nationality: 
+        type: "string"
+        example: "ESP"
+      date_birth: 
+        type: "string"
+        example: "1984-01-14T02:07:26+00:00"
+      city_birth: 
+        type: "string"
+        example: "Madrid"
+      civil_status: 
+        type: "string"
+        example: "Single"
+      sex: 
+        type: "string"
+        example: "male"
+      phone1: 
+        type: "string"
+        example: "+34 665467464"
+      email: 
+        type: "string"
+        example: "test@test.com"
+      email2: 
+        type: "string"
+        example: "test@test3.com"
+      occupation: 
+        type: "string"
+        example: "Developer"
+      documents: 
+        type: "array"
+        items: 
+          type: "object"
+          properties: 
+            type: 
+              type: "string"
+              example: "passport"
+            number: 
+              type: "string"
+              example: "123412341234"
+            valid_until: 
+              type: "string"
+              example: "2020-01-01"
+            issued_at: 
+              type: "string"
+              example: "2015-01-01"
+            issued_country: 
+              type: "string"
+              example: "ESP"
+            issued_by: 
+              type: "string"
+              example: "Policia Española"
+            images: 
+              type: "array"
+              items: 
+                type: "string"
+              example: 
+                - "http://images.client.com/1234123412341234"
+                - "http://images.client.com/1234123412341235"
+      normalized_name: 
+        type: "string"
+        example: "Juan José Perez Lozano"
+      ordered_name: 
+        type: "string"
+        example: "Juan Jose Lozano Perez"
+  
+  BlacklistStatus:
+    required: 
+      - "id"
+      - "description"
+      - "source"
+      - "last_updated_on"
+      - "total_registries"
+      - "additional_properties"
+    properties: 
+      id: 
+        type: "string"
+        example: "OFAC"
+      description: 
+        type: "string"
+        example: "OFAC Consolidated Sanctions List"
+      source: 
+        type: "string"
+        example: "https://www.treasury.gov/resource-center/sanctions/sdn-list/pages/consolidated.aspx"
+      last_updated_on: 
+        type: "string"
+        example: "2019-01-14T02:07:26+00:00"
+      total_registries: 
+        type: "number"
+        example: 20987
+      additional_properties: 
+        type: "array"
+        items: 
+          type: "object"
+          properties: 
+            photo_link: 
+              type: "string"
+              example: "Link to the photo of the person"
+
+  CustomBlacklistPost:
+    required: 
+      - "short_name"
+      - "description"
+    properties: 
+      short_name: 
+        type: "string"
+        example: "Defaulter Blacklist"
+      description: 
+        type: "string"
+        example: "Defaulter Blacklist created by Finance Department"
+     
+  CustomBlacklist:
+    required: 
+      - "id"
+      - "name"
+      - "description"
+      - "last_updated_on"
+      - "total_registries"
+      - "created_by"
+      - "created_on"
+      - "active"
+    properties: 
+      id: 
+        type: "string"
+        example: "3664893e-e13a-4937-b93c-c489a9400daa"
+      short_name: 
+        type: "string"
+        example: "DEF-BL"
+      description: 
+        type: "string"
+        example: "Defaulter Blacklist created by Finance Department"
+      last_updated_on: 
+        type: "string"
+        example: "2019-01-14T02:07:26+00:00"
+      total_registries: 
+        type: "number"
+        example: 35
+      created_by: 
+        type: "string"
+        example: "user"
+      created_on: 
+        type: "string"
+        example: "2018-01-10T02:07:26+00:00"
+      active: 
+        type: "boolean"
+        example: true
+        
+  GenericCreatedDto:
+    required:
+      - "id"
+    properties: 
+      id: 
+        type: "string" 
+        example: "4827921b-a050-40e6-967e-9e1744b2e3e3"
+        
+  WhitelistPost:
+    required: 
+      - "filter"
+    properties: 
+      filter: 
+        required: 
+          - "documentNumber"
+          - "full_name"
+          - "id"
+        properties: 
+          documentNumber: 
+            type: "string"
+            example: "12341234"
+          full_name: 
+            type: "string"
+            example: "Juan Jose Garcia"
+          id: 
+            type: "string"
+            example: "12341234"
+        type: "object"
+      message: 
+        type: "string"
+        example: "After having the proper documentation, it's age is different from the one of the blacklist record in the OFAC"
+  WhitelistGet:
+    required: 
+      - "id"
+      - "filter"
+      - "created_by"
+      - "created_on"
+    properties: 
+      id: 
+        type: "string"
+        example: "3664893e-e13a-4937-b93c-c489a9400daa"
+      filter: 
+        required: 
+          - "documentNumber"
+          - "full_name"
+          - "id"
+        properties: 
+          documentNumber: 
+            type: "string"
+            example: "12341234"
+          full_name: 
+            type: "string"
+            example: "Juan Jose Garcia"
+          id: 
+            type: "string"
+            example: "12341234"
+        type: "object"
+      message: 
+        type: "string"
+        example: "After having the proper documentation, it's age is different from the one of the blacklist record in the OFAC"
+      created_by: 
+        type: "string"
+        example: "user"
+      created_on: 
+        type: "string"
+        example: "2018-01-10T02:07:26+00:00"
+
+
+  NotificationEvent: 
+    required: 
+      - "id"
+      - "event_type"
+      - "date_event"
+      - "event_info"
+    properties: 
+      id: 
+        type: "string"
+        example: "3664893e-e13a-4937-b93c-c489a9400daa"
+      event_type: 
+        type: "string"
+        example: "CustomerBlacklistedOnUpdate"
+      date_event: 
+        type: "string"
+        example: "2018-01-10T02:07:26+00:00"
+      event_info: 
+        required: 
+          - "message"
+          - "blacklist"
+          - "hit"
+        properties: 
+          message: 
+            type: "string"
+            example: "Customer with id 12341234 have been matched against a new updated record"
+          blacklist: 
+            type: "string"
+            example: "OFAC"
+          hit: 
+            required: 
+              - "blacklist"
+              - "scoring"
+              - "registry"
+            properties: 
+              blacklist: 
+                type: "string"
+                example: "OFAC"
+              scoring: 
+                required: 
+                  - "total"
+                  - "terms"
+                  - "similar"
+                properties: 
+                  total: 
+                    type: "number"
+                    example: 0.9
+                  terms: 
+                    type: "number"
+                    example: 0.9
+                  similar: 
+                    type: "number"
+                    example: 0.78
+                type: "object"
+              registry: 
+                required: 
+                  - "id"
+                  - "source"
+                  - "updated_at"
+                  - "first_name"
+                  - "last_name"
+                  - "last_name2"
+                  - "full_name"
+                  - "normalized_name"
+                  - "nationality"
+                  - "address"
+                  - "title"
+                  - "sanctioned_program"
+                  - "sanction_summary"
+                  - "type"
+                  - "additional_properties"
+                properties: 
+                  id: 
+                    type: "string"
+                    example: "us-ofac.5a1ab56ddebdcb25ac6e6f3fbf59856aa42ecad2"
+                  source: 
+                    type: "string"
+                    example: "OFAC"
+                  updated_at: 
+                    type: "string"
+                    example: "2019-01-14T02:07:26+00:00"
+                  first_name: 
+                    type: "string"
+                    example: "Juan"
+                  last_name: 
+                    type: "string"
+                    example: "García"
+                  last_name2: 
+                    type: "string"
+                    example: "De los Santos"
+                  full_name: 
+                    type: "string"
+                    example: "Juan García De los Santos"
+                  normalized_name: 
+                    type: "string"
+                    example: "Juan Garcia Santos"
+                  nationality: 
+                    type: "string"
+                    example: "CUB"
+                  address: 
+                    required: 
+                      - "summary"
+                      - "street"
+                      - "number"
+                      - "city"
+                      - "country"
+                    properties: 
+                      summary: 
+                        type: "string"
+                        example: "C/test, 25, La Habana, Cuba"
+                      street: 
+                        type: "string"
+                        example: "Test"
+                      number: 
+                        type: "string"
+                        example: "25"
+                      city: 
+                        type: "string"
+                        example: "La Habana"
+                      country: 
+                        type: "string"
+                        example: "CUB"
+                    type: "object"
+                  title: 
+                    type: "string"
+                    example: "Minister of State for Special Affairs, Land and Resettlement Program"
+                  sanctioned_program: 
+                    type: "string"
+                    example: "us-ofac/CUBA"
+                  sanction_summary: 
+                    type: "string"
+                    example: "Also identified as National Security Advisor"
+                  type: 
+                    type: "string"
+                    example: "individual"
+                  additional_properties: 
+                    type: "array"
+                    items: 
+                      type: "object"
+                      properties: 
+                        photo_link: 
+                          type: "string"
+                          example: "http://xxxx.com/url.jpg"
+                type: "object"
+            type: "object"
+        type: "object"
+
+
+  MatchConfigurationGet:
+    required: 
+      - "filters"
+      - "search_blacklists"
+      - "min_score"
+      - "max_expansions"
+      - "use_whitelists"
+      - "last_update_on"
+      - "last_update_by"
+    properties: 
+      filters: 
+        type: "array"
+        items: 
+          type: "string"
+        example: 
+          - "ordered"
+          - "normalize"
+      search_blacklists: 
+        type: "array"
+        items: 
+          type: "string"
+        example: 
+          - "OFAC"
+          - "UK"
+      min_score: 
+        type: "number"
+        example: 0.5
+      max_expansions: 
+        type: "number"
+        example: 3
+      use_whitelists: 
+        type: "boolean"
+        example: true
+      last_update_by: 
+        type: "string"
+        example: "user"
+      last_update_on: 
+        type: "string"
+        example: "2019-01-14T02:07:26+00:00"
+   
