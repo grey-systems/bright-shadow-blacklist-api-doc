@@ -182,7 +182,7 @@ paths:
           The available values for filters are currenty: 
           
           * `full_name`
-          * `documentNumber`
+          * `document_number`
           * `id`
 
         **It's important to note that there is no method to modify a whitelist record, so the user will have to perform a delete/create operation for this purpose** 
@@ -809,7 +809,7 @@ definitions:
     required:
       - filters
     properties:
-      idEntity:
+      id_entity:
         type: string
         example: TheIdOfYourCustomerIfExists
       min_scoring:
@@ -1172,11 +1172,11 @@ definitions:
     properties:
       filter:
         required:
-          - documentNumber
+          - document_number
           - full_name
           - id
         properties:
-          documentNumber:
+          document_number:
             type: string
             example: '12341234'
           full_name:
@@ -1201,11 +1201,11 @@ definitions:
         example: 3664893e-e13a-4937-b93c-c489a9400daa
       filter:
         required:
-          - documentNumber
+          - document_number
           - full_name
           - id
         properties:
-          documentNumber:
+          document_number:
             type: string
             example: '12341234'
           full_name:

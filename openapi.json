@@ -150,7 +150,7 @@
         ],
         "summary": "creates a records within a custom blacklist",
         "operationId": "createWhitelistRecord",
-        "description": "A whitelist record is a filter match so: \n  * if the matching algorithm found a record in the whitelist that matches 100% the value of the filter, it will set the whitelist flag to `true` in the response, so the caller will know that altough a record is matched against the blacklist is already whitelisted\n  * the filter can specify several parameters that will be used as `AND` terms, so the algorithm will match a whitelist if all parameters match. \n  * **Special Case**: if id filter is used, only this filter will be used, so the create whitelist record will reject to create records with another parameter than id if id is specified.\n  \n  The available values for filters are currenty: \n  \n  * `full_name`\n  * `documentNumber`\n  * `id`\n\n**It's important to note that there is no method to modify a whitelist record, so the user will have to perform a delete/create operation for this purpose** \n",
+        "description": "A whitelist record is a filter match so: \n  * if the matching algorithm found a record in the whitelist that matches 100% the value of the filter, it will set the whitelist flag to `true` in the response, so the caller will know that altough a record is matched against the blacklist is already whitelisted\n  * the filter can specify several parameters that will be used as `AND` terms, so the algorithm will match a whitelist if all parameters match. \n  * **Special Case**: if id filter is used, only this filter will be used, so the create whitelist record will reject to create records with another parameter than id if id is specified.\n  \n  The available values for filters are currenty: \n  \n  * `full_name`\n  * `document_number`\n  * `id`\n\n**It's important to note that there is no method to modify a whitelist record, so the user will have to perform a delete/create operation for this purpose** \n",
         "parameters": [
           {
             "name": "record",
@@ -988,7 +988,7 @@
         "filters"
       ],
       "properties": {
-        "idEntity": {
+        "id_entity": {
           "type": "string",
           "example": "TheIdOfYourCustomerIfExists"
         },
@@ -1489,12 +1489,12 @@
       "properties": {
         "filter": {
           "required": [
-            "documentNumber",
+            "document_number",
             "full_name",
             "id"
           ],
           "properties": {
-            "documentNumber": {
+            "document_number": {
               "type": "string",
               "example": "12341234"
             },
@@ -1529,12 +1529,12 @@
         },
         "filter": {
           "required": [
-            "documentNumber",
+            "document_number",
             "full_name",
             "id"
           ],
           "properties": {
-            "documentNumber": {
+            "document_number": {
               "type": "string",
               "example": "12341234"
             },
