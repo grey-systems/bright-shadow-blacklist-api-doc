@@ -83,14 +83,12 @@ info:
     url: "https://github.com/grey-systems/bright-shadow-blacklist-api-doc/raw/master/assets/logo.png"
 produces:
   - application/json
-  - text/csv
   
 consumes:
   # List of mime types your API endpoints consumes.
   # This is a global default. You can OVERWRITE it in each specific operation.
   # Remove the ones not supported by your API
   - application/json
-  - text/csv
 tags:
   - name: Matching
     description: Match operations against blacklists
@@ -539,10 +537,9 @@ paths:
     get: 
       tags: 
         - Matching
-      summary: Gets default configuration for matching algorithm
-      
+      summary: Gets the default configuration for matching algorithm
       description: | 
-        Gets the default configuration used for the matching algorithm. 
+        Gets the current configuration that will be applied for matching algorithm. 
         
         Note that this configuration can be overriden in the `POST /match` operation in a per-request basis. 
       operationId: getMatchConfiguration
@@ -557,7 +554,7 @@ paths:
     put:
       tags: 
         - Matching
-      summary: Modifies default configuration for matching algorithm
+      summary: Modifies the default configuration for matching algorithm
       description: Modifies the default configuration used for the matching algorithm
       parameters: 
         - name: matchConfiguration
@@ -573,7 +570,7 @@ paths:
     post:
       tags:
         - Matching
-      summary: Perform a matching online operation against multiple blacklists
+      summary: Performs a matching online operation against multiple blacklists
       description: |
         Performs a matching operation against the blacklists configured (both official and custom) using the filters given as input to the API. Only 1 filter is strictly mandatory. 
         
@@ -583,9 +580,9 @@ paths:
         
         Response: 
         
-        * `max_scoring`:Max Score value detected by the algorithm. 
-          * `total` is the maximum between `term` and `similar` score
-        * `filters_applied`: List of the filters applied before finding matchs to the terms of the search
+        * `max_scoring`: Max Score value detected by the algorithm. 
+        * `total` is the maximum between `term` and `similar` score
+        * `filters`: List of the filters applied before finding matchs to the terms of the search
         * `whitelist**`: if `whitelisted = true`, it will return the id of the list in which the search has hitted and the registry found. **note that even if a registry is whitelisted, you will obtain results against a blacklist and it's up to the caller to evaluate if a whitelisted result has impact on his processes.
         * `hits`: List of search results with all the info in the registry of the blacklist
 
@@ -620,10 +617,9 @@ definitions:
     - "response_id"
     - "response_date"
     - "max_scoring"
-    - "filters_applied"
+    - "preprocessors_applied"
     - "hits"
     properties: 
-    
       response_id: 
         type: "string"
         example: "512ee1da-1ac3-4289-936f-2c8c75860b8b"
@@ -655,7 +651,7 @@ definitions:
             type: "number"
             example: 0.78
         type: "object"
-      filters_applied: 
+      preprocessors_applied: 
         type: "array"
         items: 
           type: "string"
@@ -686,99 +682,9 @@ definitions:
                   type: "number"
                   example: 0.78
               type: "object"
+            # Pending to explain that this registry will return a dynamic object with
+            # all the information found in the blacklist
             registry: 
-              required: 
-                - "id"
-                - "source"
-                - "updated_at"
-                - "first_name"
-                - "last_name"
-                - "last_name2"
-                - "full_name"
-                - "normalized_name"
-                - "nationality"
-                - "address"
-                - "title"
-                - "sanctioned_program"
-                - "sanction_summary"
-                - "type"
-                - "additional_properties"
-              properties: 
-                id: 
-                  type: "string"
-                  example: "us-ofac.5a1ab56ddebdcb25ac6e6f3fbf59856aa42ecad2"
-                source: 
-                  type: "string"
-                  example: "OFAC"
-                updated_at: 
-                  type: "string"
-                  example: "2019-01-14T02:07:26+00:00"
-                first_name: 
-                  type: "string"
-                  example: "Juan"
-                last_name: 
-                  type: "string"
-                  example: "García"
-                last_name2: 
-                  type: "string"
-                  example: "De los Santos"
-                full_name: 
-                  type: "string"
-                  example: "Juan García De los Santos"
-                normalized_name: 
-                  type: "string"
-                  example: "Juan Garcia Santos"
-                nationality: 
-                  type: "string"
-                  example: "CUB"
-                address: 
-                  required: 
-                    - "summary"
-                    - "street"
-                    - "number"
-                    - "postal_code"
-                    - "city"
-                    - "country"
-                  properties: 
-                    postal_code: 
-                      type: "string"
-                      example: "28089"
-                    summary: 
-                      type: "string"
-                      example: "C/test, 25, La Habana, Cuba"
-                    street: 
-                      type: "string"
-                      example: "Test"
-                    number: 
-                      type: "string"
-                      example: "25"
-                    city: 
-                      type: "string"
-                      example: "La Habana"
-                    country: 
-                      type: "string"
-                      example: "CUB"
-                  type: "object"
-                title: 
-                  type: "string"
-                  example: "Minister of State for Special Affairs, Land and Resettlement Program"
-                sanctioned_program: 
-                  type: "string"
-                  example: "us-ofac/CUBA"
-                sanction_summary: 
-                  type: "string"
-                  example: "Also identified as National Security Advisor"
-                type: 
-                  type: "string"
-                  example: "individual"
-                additional_properties: 
-                  type: "array"
-                  items: 
-                    type: "object"
-                    properties: 
-                      photo_link: 
-                        type: "string"
-                        example: "http://xxxx.com/url.jpg"
               type: "object"
               
   CustomBlacklistRecord: 
@@ -864,15 +770,18 @@ definitions:
     description: MatchRequest
     type: object
     required: 
-    - "filters"
+    - "preprocessors"
     properties: 
       id_entity: 
         type: "string"
         example: "TheIdOfYourCustomerIfExists"
       min_scoring: 
         type: "number"
-        example: 0
-      filters: 
+        example: 0.9
+      max_expansions: 
+        type: "number"
+        example: 1
+      preprocessors: 
         type: "array"
         items: 
           type: "object"
@@ -880,13 +789,9 @@ definitions:
             full_name: 
               type: "string"
               example: "Juan Garcia Cortes"
-      blacklists: 
-        type: "array"
-        items: 
-          type: "string"
-        example: 
-          - "OFAC"
-          - "UK"
+      use_whitelists:
+        type: "boolean"
+        example: true
   Error:
     type: object
     required:
@@ -899,13 +804,13 @@ definitions:
         type: string   
   MatchConfiguration:
     required: 
-      - "filters"
+      - "preprocessors"
       - "search_blacklists"
       - "min_score"
       - "max_expansions"
       - "use_whitelists"
     properties: 
-      filters: 
+      preprocessors: 
         type: "array"
         items: 
           type: "string"
@@ -1438,21 +1343,32 @@ definitions:
 
   MatchConfigurationGet:
     required: 
-      - "filters"
-      - "search_blacklists"
-      - "min_score"
+      - "preprocessors"
+      - "last_updated_by"
+      - "last_updated_on"
       - "max_expansions"
+      - "min_score"
+      - "search_blacklists"
       - "use_whitelists"
-      - "last_update_on"
-      - "last_update_by"
     properties: 
-      filters: 
+      preprocessors: 
         type: "array"
         items: 
           type: "string"
         example: 
-          - "ordered"
-          - "normalize"
+          - "Normalized"
+      last_updated_by: 
+        type: "string"
+        example: "admin"
+      last_updated_on: 
+        type: "string"
+        example: "2019-02-12T16:02:51.500Z"
+      max_expansions: 
+        type: "number"
+        example: 2
+      min_score: 
+        type: "number"
+        example: 0.8
       search_blacklists: 
         type: "array"
         items: 
@@ -1460,19 +1376,7 @@ definitions:
         example: 
           - "OFAC"
           - "UK"
-      min_score: 
-        type: "number"
-        example: 0.5
-      max_expansions: 
-        type: "number"
-        example: 3
       use_whitelists: 
         type: "boolean"
-        example: true
-      last_update_by: 
-        type: "string"
-        example: "user"
-      last_update_on: 
-        type: "string"
-        example: "2019-01-14T02:07:26+00:00"
+        example: false
    
