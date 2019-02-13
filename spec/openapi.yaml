@@ -137,7 +137,7 @@ paths:
           
       responses: 
         "204": 
-          description: Success, event is acked
+          description: Success, event is acknowledged
         "404":
           description: Not Found, the event identified by id does not exists
           
@@ -733,12 +733,6 @@ paths:
 definitions:
   MatchResponse:
     description: MatchResponse
-    required: 
-    - "response_id"
-    - "response_date"
-    - "max_scoring"
-    - "preprocessors_applied"
-    - "hits"
     properties: 
     
       response_id: 
@@ -807,24 +801,6 @@ definitions:
               type: "object"
               
   CustomBlacklistRecord: 
-    required: 
-      - "id"
-      - "additional_properties"
-      - "addresses"
-      - "id_docs"
-      - "first_name"
-      - "last_name"
-      - "last_name2"
-      - "last_name3"
-      - "last_name4"
-      - "middle_name"
-      - "nationality"
-      - "normalized_name"
-      - "ordered_name"
-      - "sanction_program"
-      - "sanction_summary"
-      - "title"
-      - "type"
     properties: 
       id: 
         type: "string"
@@ -908,20 +884,7 @@ definitions:
       
   CustomBlacklistRecordPost: 
     required: 
-      - "additional_properties"
-      - "addresses"
-      - "id_docs"
       - "first_name"
-      - "last_name"
-      - "last_name2"
-      - "last_name3"
-      - "last_name4"
-      - "middle_name"
-      - "nationality"
-      - "normalized_name"
-      - "ordered_name"
-      - "title"
-      - "type"
     properties: 
       additional_properties:
         type: "object"
@@ -946,6 +909,8 @@ definitions:
               type: "string"
               example: "Avenida del Ferrocarril"
       id_docs: 
+        required:
+          - "number"
         type: "array"
         items: 
           type: "object"
@@ -1022,21 +987,12 @@ definitions:
         
   Error:
     type: object
-    required:
-      - code
-      - message
     properties:
       code:
         type: string
       message:
         type: string   
   MatchConfiguration:
-    required: 
-      - "preprocessors"
-      - "search_blacklists"
-      - "min_score"
-      - "max_expansions"
-      - "use_whitelists"
     properties: 
       preprocessors: 
         type: "array"
@@ -1062,6 +1018,8 @@ definitions:
         type: "boolean"
         example: true
   CustomerNotify: 
+    required:
+      - "id"
     properties: 
       id: 
         type: "string"
@@ -1082,12 +1040,6 @@ definitions:
         type: "string"
         example: "individual"
       address: 
-        required: 
-          - "street"
-          - "number"
-          - "postal_code"
-          - "city"
-          - "country"
         properties: 
           street: 
             type: "string"
@@ -1274,13 +1226,6 @@ definitions:
                 - "http://images.client.com/1234123412341235"
   
   BlacklistStatus:
-    required: 
-      - "id"
-      - "description"
-      - "source"
-      - "last_updated_on"
-      - "total_registries"
-      - "additional_properties"
     properties: 
       id: 
         type: "string"
@@ -1317,15 +1262,6 @@ definitions:
         type: "object"
      
   CustomBlacklist:
-    required: 
-      - "id"
-      - "short_name"
-      - "description"
-      - "last_updated_on"
-      - "total_registries"
-      - "created_by"
-      - "created_on"
-      - "active"
     properties: 
       id: 
         type: "string"
@@ -1367,10 +1303,6 @@ definitions:
       - "filter"
     properties: 
       filter: 
-        required: 
-          - "document_number"
-          - "full_name"
-          - "id"
         properties: 
           document_number: 
             type: "string"
@@ -1386,11 +1318,6 @@ definitions:
         type: "string"
         example: "After having the proper documentation, it's age is different from the one of the blacklist record in the OFAC"
   WhitelistGet:
-    required: 
-      - "id"
-      - "filter"
-      - "created_by"
-      - "created_on"
     properties: 
       id: 
         type: "string"
@@ -1423,11 +1350,6 @@ definitions:
 
 
   NotificationEvent: 
-    required: 
-      - "id"
-      - "event_type"
-      - "date_event"
-      - "event_info"
     properties: 
       id: 
         type: "string"
@@ -1570,14 +1492,6 @@ definitions:
 
 
   MatchConfigurationGet:
-    required: 
-      - "preprocessors"
-      - "search_blacklists"
-      - "min_score"
-      - "max_expansions"
-      - "use_whitelists"
-      - "last_update_on"
-      - "last_update_by"
     properties: 
       preprocessors: 
         type: "array"
