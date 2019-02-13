@@ -422,7 +422,7 @@ paths:
     put:
       tags:
        - Custom Blacklists
-      summary: Deactivate a custom blacklist
+      summary: Deactivates a custom blacklist
       description: | 
         **Deactivates a custom blacklist**. It's important to note that the deactivate method will not physically delete the blacklist. While the custom blacklist is deactivate, it will not be used by the matching algorithms
       operationId: deactivateCustomBlacklist
@@ -444,7 +444,7 @@ paths:
     put:
       tags:
        - Custom Blacklists
-      summary: Deactivate a custom blacklist
+      summary: Activates a custom blacklist
       description: | 
         **Activates a custom blacklist**. Activates the custom blacklist and use in the matching algorithms again.
       operationId: activateCustomBlacklist
@@ -703,7 +703,7 @@ paths:
         * `whitelist**`: if `whitelisted = true`, it will return the id of the list in which the search has hitted and the registry found. **note that even if a registry is whitelisted, you will obtain results against a blacklist and it's up to the caller to evaluate if a whitelisted result has impact on his processes.
         * `hits`: List of search results with all the info in the registry of the blacklist. 
         
-        **IMPORTANT:** The field `registry` inside the hists will return the raw info of the blacklist's record matched. Any kind of information could come here when the match is produced in a public blacklist. The custom blacklists records is defined in this api and will return if the match is against a custom blacklist.
+        **IMPORTANT:** The field `registry` inside the hits will return the raw info of the blacklist's record matched. Any kind of information could come here when the match is produced in a public blacklist. The custom blacklists records is defined in this api and will return if the match is against a custom blacklist.
 
       operationId: match
 
