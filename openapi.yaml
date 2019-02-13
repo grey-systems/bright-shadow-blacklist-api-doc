@@ -15,7 +15,7 @@ info:
     * RESTFul. 
     * Predictable resource URLs.  
     * It returns HTTP response codes to indicate errors.
-    * It also accepts and returns JSON in the HTTP body. 
+    * It also accepts and returns JSON in the HTTP body.
 
     You can use your favorite HTTP/REST library for your programming language to consume this API. 
 
@@ -77,10 +77,8 @@ info:
     url: 'https://github.com/grey-systems/bright-shadow-blacklist-api-doc/raw/master/assets/logo.png'
 produces:
   - application/json
-  - text/csv
 consumes:
   - application/json
-  - text/csv
 tags:
   - name: Matching
     description: Match operations against blacklists
@@ -114,19 +112,19 @@ paths:
       parameters:
         - name: id
           in: path
-          description: the id of the event to be acked
+          description: The id of the event to be acked
           type: string
           required: true
       responses:
-        '200':
-          description: 'Success, event is acked'
+        '204':
+          description: 'Success, event is acknowledged'
         '404':
-          description: The event identified by id does not exists
+          description: 'Not Found, the event identified by id does not exists'
   /event:
     get:
       tags:
         - Notifications
-      summary: gets all non acknowledged notifications
+      summary: Gets all non acknowledged notifications
       operationId: getNotifications
       description: |
         Returns all events that are not yet acknowledged. 
@@ -146,7 +144,7 @@ paths:
         - application/json
       responses:
         '200':
-          description: Success
+          description: 'Success, all non acknowledged notifications are retuned'
           schema:
             type: array
             items:
@@ -155,7 +153,7 @@ paths:
     get:
       tags:
         - Whitelists
-      summary: gets all records of the whitelist
+      summary: Gets all records of the whitelist
       operationId: getWhitelistRecords
       description: |
         Use carefully this operation, as it will return ALL records within the whitelist. If the whitelist number of records is quite big, it will take a considerably time to be downloaded depending on the bandwith used.
@@ -163,7 +161,7 @@ paths:
         - application/json
       responses:
         '200':
-          description: Success
+          description: 'Success, all records within whitelist are returned'
           schema:
             type: array
             items:
@@ -171,7 +169,7 @@ paths:
     post:
       tags:
         - Whitelists
-      summary: creates a records within a custom blacklist
+      summary: Creates a records within a custom blacklist
       operationId: createWhitelistRecord
       description: |
         A whitelist record is a filter match so: 
@@ -189,7 +187,7 @@ paths:
       parameters:
         - name: record
           in: body
-          description: the record to create
+          description: New whitelist's record to create
           required: true
           schema:
             $ref: '#/definitions/WhitelistPost'
@@ -197,11 +195,15 @@ paths:
         - application/json
       responses:
         '201':
-          description: Success
+          description: 'Success, the whitelist''s record is created in Bright Shadow'
           schema:
             $ref: '#/definitions/GenericCreatedDto'
         '400':
-          description: Invalid Request
+          description: Invalid Request. The required field has not been provided or some validation has not been passed
+          schema:
+            $ref: '#/definitions/Error'
+        '409':
+          description: Conflict. Already exist a record withing whitelist with the provided id
           schema:
             $ref: '#/definitions/Error'
   '/whitelist/{record}':
@@ -214,7 +216,7 @@ paths:
       operationId: getWhitelitRecordById
       parameters:
         - name: record
-          description: record id
+          description: Record id
           in: path
           required: true
           type: string
@@ -222,11 +224,11 @@ paths:
         - application/json
       responses:
         '200':
-          description: Success
+          description: 'Success, the whitelist''s record is created successfully'
           schema:
             $ref: '#/definitions/WhitelistGet'
         '404':
-          description: 'The whitelist record identified by {id} does not exist'
+          description: 'Not Found, the whitelist record identified by {id} does not exist'
     delete:
       tags:
         - Whitelists
@@ -236,19 +238,17 @@ paths:
       operationId: deleteWhitelitRecordById
       parameters:
         - name: record
-          description: record id
+          description: Record id to delete
           in: path
           required: true
           type: string
       produces:
         - application/json
       responses:
-        '200':
-          description: Success
-          schema:
-            $ref: '#/definitions/WhitelistGet'
+        '204':
+          description: 'Success, the whitelist''s record is deleted successfully'
         '404':
-          description: 'The whitelist record identified by {id} does not exist'
+          description: 'Not Found, the whitelist record identified by {id} does not exist'
   /blacklist/public:
     get:
       tags:
@@ -259,7 +259,7 @@ paths:
         - application/json
       responses:
         '200':
-          description: Success
+          description: 'Success, returns all custom blacklists installed in Bright Shadow'
           schema:
             type: array
             items:
@@ -274,7 +274,7 @@ paths:
         - application/json
       responses:
         '200':
-          description: Success
+          description: 'Success, returns all custom blacklists saved in Bright Shadow'
           schema:
             type: array
             items:
@@ -286,14 +286,18 @@ paths:
       description: |
         Creates a custom blacklist in the system. 
 
-        * `short_name` cannot be duplicated with any other custom blacklist created
+        * `short_name` cannot be duplicated with any other custom blacklist's name already created. 
+
         * `short_name` and description are mandatory
+
+        * The field `additional_properties` is a map where you can put additional descriptive information about the custom blacklist
 
         It returns an unique identifier (UUID) for the just created blacklist
       operationId: createCustomBlacklist
       parameters:
         - name: customBlacklist
           in: body
+          description: Custom blacklist definition
           required: true
           schema:
             $ref: '#/definitions/CustomBlacklistPost'
@@ -301,11 +305,15 @@ paths:
         - application/json
       responses:
         '201':
-          description: Success
+          description: 'Success, new custom blacklist is created in Bright Shadow'
           schema:
             $ref: '#/definitions/GenericCreatedDto'
         '400':
-          description: Invalid request
+          description: 'Invalid request, The mandatory fields have not been provided'
+          schema:
+            $ref: '#/definitions/Error'
+        '409':
+          description: 'Conflict, the custom blacklist already exists in Bright Shadow'
           schema:
             $ref: '#/definitions/Error'
   '/blacklist/custom/{id}':
@@ -316,18 +324,49 @@ paths:
       description: |
         Modifies an existent custom blacklist in the system. 
 
-        * `short_name` cannot be duplicated with any other custom blacklist created
         * `short_name` and description are mandatory
 
-        It returns an unique identifier (UUID) for the just created blacklist
+        * The field `additional_properties` is a map where you can put additional descriptive information about the custom blacklist
       operationId: modifyCustomBlacklist
       parameters:
         - name: id
           in: path
+          description: Id of the blacklist to modify
           required: true
           type: string
         - name: customBlacklist
           in: body
+          description: Custom blacklist definition.
+          required: true
+          schema:
+            $ref: '#/definitions/CustomBlacklistPost'
+      produces:
+        - application/json
+      responses:
+        '204':
+          description: 'Success, the custom blacklist is modified in Bright Shadow'
+        '400':
+          description: 'Invalid request, The required fields have not been provided'
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: 'Not Found, the custom blacklist identified by {id} does not exist'
+          schema:
+            $ref: '#/definitions/Error'
+    get:
+      tags:
+        - Custom Blacklists
+      summary: Gets a custom blacklist
+      operationId: getCustomBlacklist
+      parameters:
+        - name: id
+          in: path
+          description: Id of the blacklist to modify
+          required: true
+          type: string
+        - name: customBlacklist
+          in: body
+          description: Custom blacklist definition.
           required: true
           schema:
             $ref: '#/definitions/CustomBlacklistPost'
@@ -335,71 +374,99 @@ paths:
         - application/json
       responses:
         '200':
-          description: Success
-        '400':
-          description: Invalid request
+          description: 'Success, returns the custom blacklist with the given id'
+          schema:
+            $ref: '#/definitions/CustomBlacklist'
+        '404':
+          description: 'Not Found, the custom blacklist identified by {id} does not exist'
           schema:
             $ref: '#/definitions/Error'
-        '404':
-          description: 'The custom blacklist identified by {id} does not exist'
-    delete:
+  '/blacklist/custom/{id}/deactivate':
+    put:
       tags:
         - Custom Blacklists
       summary: Deactivate a custom blacklist
       description: |
-        **Deactivate a custom blacklist**. It's important to note that the delete method will not 
-        physically delete a blacklist, while it deactivate the custom blacklist (it will not be used by the matching algorithms)
-      operationId: inactiveCustomBlacklist
+        **Deactivates a custom blacklist**. It's important to note that the deactivate method will not physically delete the blacklist. While the custom blacklist is deactivate, it will not be used by the matching algorithms
+      operationId: deactivateCustomBlacklist
       parameters:
         - name: id
           in: path
+          description: Id of the blacklist to deactivate
           required: true
           type: string
       produces:
         - application/json
       responses:
-        '200':
-          description: Success
+        '204':
+          description: 'Success, the custom Blacklist is deactivated.'
         '404':
-          description: 'The custom blacklist identified by {id} does not exist'
+          description: 'Not Found, the custom blacklist identified by {id} does not exist'
+  '/blacklist/custom/{id}/activate':
+    put:
+      tags:
+        - Custom Blacklists
+      summary: Deactivate a custom blacklist
+      description: |
+        **Activates a custom blacklist**. Activates the custom blacklist and use in the matching algorithms again.
+      operationId: activateCustomBlacklist
+      parameters:
+        - name: id
+          in: path
+          description: Id of the blacklist to activate
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '204':
+          description: 'Success, the custom blacklist activated.'
+        '404':
+          description: 'Not Found, the custom blacklist identified by {id} does not exist'
   '/blacklist/custom/{id}/record':
     get:
       tags:
         - Custom Blacklists
-      summary: gets all records of a custom blacklist
+      summary: Gets all records of a custom blacklist
       operationId: getBlackListRecords
       description: |
         Use carefully this operation, as it will return ALL records within a custom blacklist. If the blacklist number of records is quite big, it will take a considerably time to be downloaded depending on the bandwith used.
       parameters:
         - name: id
           in: path
-          description: id of the blacklist to which the record belongs to
+          description: Id of the blacklist to which the record belongs to
           required: true
           type: string
       produces:
         - application/json
       responses:
         '200':
-          description: Success
+          description: 'Success, all record within the specified blacklist are returned'
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/CustomBlacklistRecord'
         '404':
-          description: 'The custom blacklist identified by {id} does not exist or the record identified by {idRecord} does not exists'
+          description: 'Not Found, the custom blacklist identified by {id} does not exist or the record identified by {idRecord} does not exists'
     post:
       tags:
         - Custom Blacklists
-      summary: creates a records within a custom blacklist
+      summary: Creates a records within a custom blacklist
       operationId: createBlackListRecords
       description: |
         Creates a blacklist record within the custom blacklist. 
 
-        A custom blaclist is created using a pseudo filter match, and it will be treated in the same way as public blacklist records by the matching algorithm, so you can create it using the same properties as the ones given for the public/official blacklist
+        * A custom blaclist is created using a pseudo filter match, and it will be treated in the same way as public blacklist records by the matching algorithm, so you can create it using the same properties as the ones given for the public/official blacklist
 
-         At least `first_name` or a document (with document number) is required
+        * At least `first_name` or a document (with document number) is required
+
+        * You can use `additional_properties` to adds special custom information about the record
 
         **It's important to note that there is no method to modify a custom blacklist, so the user will have to perform a delete/create operation for this purpose** 
       parameters:
         - name: id
           in: path
-          description: id of the blacklist to which the record belongs to
+          description: Id of the blacklist to which the record belongs to
           required: true
           type: string
         - name: record
@@ -407,42 +474,69 @@ paths:
           description: the record to create
           required: true
           schema:
-            $ref: '#/definitions/CustomBlacklistRecord'
+            $ref: '#/definitions/CustomBlacklistRecordPost'
+      produces:
+        - application/json
+      responses:
+        '201':
+          description: 'Success, new record is created withing the custom blacklist specified'
+          schema:
+            $ref: '#/definitions/GenericCreatedDto'
+        '400':
+          description: 'Bad Request, At least, `first_name` or a document (with document number) is required.'
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: 'Not Found, the custom blacklist identified by {id} does not exist'
+          schema:
+            $ref: '#/definitions/Error'
+  '/blacklist/custom/{id}/record/{idRecord}':
+    get:
+      tags:
+        - Custom Blacklists
+      summary: Gets a record within a custom blacklist
+      operationId: getBlackListRecord
+      parameters:
+        - name: id
+          in: path
+          description: Id of the blacklist to which the record belongs to
+          required: true
+          type: string
+        - name: idRecord
+          description: Id of the record to delete
+          in: path
+          required: true
+          type: string
       produces:
         - application/json
       responses:
         '200':
-          description: Success
+          description: 'Success, the requested record is returned'
           schema:
-            $ref: '#/definitions/GenericCreatedDto'
-        '400':
-          description: At least `first_name` or a document (with document number) is required.
-          schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/definitions/CustomBlacklistRecord'
         '404':
-          description: 'The custom blacklist identified by {id} does not exist'
-  '/blacklist/custom/{id}/record/{idRecord}':
+          description: 'The custom blacklist identified by {id} does not exist or the record identified by {idRecord} does not exists'
     delete:
       tags:
         - Custom Blacklists
-      summary: Deletes a blacklist record
+      summary: Deletes a record within a custom blacklist
       operationId: deleteBlackListRecord
       parameters:
         - name: id
           in: path
-          description: id of the blacklist to which the record belongs to
+          description: Id of the blacklist to which the record belongs to
           required: true
           type: string
         - name: idRecord
-          description: id of the record to delete
+          description: Id of the record to delete
           in: path
           required: true
           type: string
       produces:
         - application/json
       responses:
-        '200':
-          description: Success
+        '204':
+          description: 'Success, the record is deleted in the custom blacklist.'
         '404':
           description: 'The custom blacklist identified by {id} does not exist or the record identified by {idRecord} does not exists'
   /customer:
@@ -462,14 +556,19 @@ paths:
       parameters:
         - name: customer
           in: body
+          description: New customer to save in Bright Shadow
           required: true
           schema:
             $ref: '#/definitions/CustomerNotify'
       responses:
         '200':
-          description: 'Success, an existent customer has been modified'
+          description: 'Success, the customer is modified'
         '201':
-          description: 'Success, a new customer has been created'
+          description: 'Success, new customer is created'
+        '400':
+          description: 'Bad Request, the customer''s id is required'
+          schema:
+            $ref: '#/definitions/Error'
   '/customer/{id}':
     get:
       tags:
@@ -481,15 +580,16 @@ paths:
       parameters:
         - name: id
           in: path
+          description: Your unique customer's id
           required: true
           type: string
       responses:
         '200':
-          description: Customer found
+          description: 'Success, the customer is returned'
           schema:
             $ref: '#/definitions/Customer'
         '404':
-          description: Customer not found
+          description: 'Not Found, The customer does not exist in Bright Shadow'
   /match/config:
     get:
       tags:
@@ -504,23 +604,30 @@ paths:
         - application/json
       responses:
         '200':
-          description: Success.
+          description: 'Success, the default configuration is returned.'
           schema:
             $ref: '#/definitions/MatchConfigurationGet'
     put:
       tags:
         - Matching
       summary: Modifies default configuration for matching algorithm
-      description: Modifies the default configuration used for the matching algorithm
+      description: |
+        Modifies the default configuration used for the matching algorithm 
+
+        These are the current available preprocessors that you can configure: 
+          * `ordered`: Alphabetic ordenation of the names's factor
+          * `normalize`: Uppercase the name and deletes al non alphanumeric characters
+          
       parameters:
         - name: matchConfiguration
           in: body
+          description: Match's configuration that will be used as default in matches
           required: true
           schema:
             $ref: '#/definitions/MatchConfiguration'
       responses:
         '204':
-          description: 'Success, configuration changed'
+          description: 'Success, the default configuration is modified'
   /match:
     post:
       tags:
@@ -533,17 +640,24 @@ paths:
 
         If any other request parameter is not given, the matching algorithm will use the default values configured in `/match/configuration` path. 
 
+        These are the current available preprocessors that you can setup in the match request: 
+          * `ordered`: Alphabetic ordenation of the names's factor
+          * `normalize`: Uppercase the name and deletes al non alphanumeric characters
+
         Response: 
 
         * `max_scoring`:Max Score value detected by the algorithm. 
-          * `total` is the maximum between `term` and `similar` score
+        * `total` is the maximum between `term` and `similar` score
         * `filters_applied`: List of the filters applied before finding matchs to the terms of the search
         * `whitelist**`: if `whitelisted = true`, it will return the id of the list in which the search has hitted and the registry found. **note that even if a registry is whitelisted, you will obtain results against a blacklist and it's up to the caller to evaluate if a whitelisted result has impact on his processes.
-        * `hits`: List of search results with all the info in the registry of the blacklist
+        * `hits`: List of search results with all the info in the registry of the blacklist. 
+
+        **IMPORTANT:** The field `registry` inside the hists will return the raw info of the blacklist's record matched. Any kind of information could come here when the match is produced in a public blacklist. The custom blacklists records is defined in this api and will return if the match is against a custom blacklist.
       operationId: match
       parameters:
         - name: matchRequest
           in: body
+          description: Match request. **Note** that the configuration defined in this request can overwrite the default configuration saved in Bright Shadow
           required: true
           schema:
             $ref: '#/definitions/MatchRequest'
@@ -551,7 +665,7 @@ paths:
         - application/json
       responses:
         '200':
-          description: Success.
+          description: 'Success, return the match''s result againt the requested blacklists'
           schema:
             $ref: '#/definitions/MatchResponse'
         '400':
@@ -561,19 +675,13 @@ paths:
 definitions:
   MatchResponse:
     description: MatchResponse
-    required:
-      - response_id
-      - response_date
-      - max_scoring
-      - filters_applied
-      - hits
     properties:
       response_id:
         type: string
         example: 512ee1da-1ac3-4289-936f-2c8c75860b8b
       response_date:
         type: string
-        example: '2019-01-14T02:07:26+00:00'
+        example: '2019-01-14T02:07:26Z'
       whitelisted:
         type: boolean
         example: false
@@ -599,7 +707,7 @@ definitions:
             type: number
             example: 0.78
         type: object
-      filters_applied:
+      preprocessors_applied:
         type: array
         items:
           type: string
@@ -631,177 +739,163 @@ definitions:
                   example: 0.78
               type: object
             registry:
-              required:
-                - id
-                - source
-                - updated_at
-                - first_name
-                - last_name
-                - last_name2
-                - full_name
-                - normalized_name
-                - nationality
-                - address
-                - title
-                - sanctioned_program
-                - sanction_summary
-                - type
-                - additional_properties
-              properties:
-                id:
-                  type: string
-                  example: us-ofac.5a1ab56ddebdcb25ac6e6f3fbf59856aa42ecad2
-                source:
-                  type: string
-                  example: OFAC
-                updated_at:
-                  type: string
-                  example: '2019-01-14T02:07:26+00:00'
-                first_name:
-                  type: string
-                  example: Juan
-                last_name:
-                  type: string
-                  example: García
-                last_name2:
-                  type: string
-                  example: De los Santos
-                full_name:
-                  type: string
-                  example: Juan García De los Santos
-                normalized_name:
-                  type: string
-                  example: Juan Garcia Santos
-                nationality:
-                  type: string
-                  example: CUB
-                address:
-                  required:
-                    - summary
-                    - street
-                    - number
-                    - postal_code
-                    - city
-                    - country
-                  properties:
-                    postal_code:
-                      type: string
-                      example: '28089'
-                    summary:
-                      type: string
-                      example: 'C/test, 25, La Habana, Cuba'
-                    street:
-                      type: string
-                      example: Test
-                    number:
-                      type: string
-                      example: '25'
-                    city:
-                      type: string
-                      example: La Habana
-                    country:
-                      type: string
-                      example: CUB
-                  type: object
-                title:
-                  type: string
-                  example: 'Minister of State for Special Affairs, Land and Resettlement Program'
-                sanctioned_program:
-                  type: string
-                  example: us-ofac/CUBA
-                sanction_summary:
-                  type: string
-                  example: Also identified as National Security Advisor
-                type:
-                  type: string
-                  example: individual
-                additional_properties:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      photo_link:
-                        type: string
-                        example: 'http://xxxx.com/url.jpg'
               type: object
   CustomBlacklistRecord:
     properties:
-      first_name:
+      id:
         type: string
-        example: Juan
-      last_name:
-        type: string
-        example: García
-      last_name2:
-        type: string
-        example: De los Santos
-      full_name:
-        type: string
-        example: Juan García De los Santos
-      nationality:
-        type: string
-        example: CUB
-      documents:
+        example: YourUniqueCustomerId
+      additional_properties:
+        type: object
+      addresses:
         type: array
         items:
           type: object
           properties:
-            type:
+            city:
               type: string
-              example: passport
+              example: Macondo
+            country:
+              type: string
+              example: COL
             number:
               type: string
-              example: '123412341234'
-            valid_until:
+              example: '14, Escalera Izquierda'
+            postal_code:
               type: string
-              example: '2020-01-01'
-            issued_at:
+              example: '1234'
+            street:
               type: string
-              example: '2015-01-01'
-            issued_country:
-              type: string
-              example: ESP
-            issued_by:
-              type: string
-              example: Policia Española
-      address:
-        properties:
-          summary:
-            type: string
-            example: 'C/test, 25, La Habana, Cuba'
-          street:
-            type: string
-            example: Test
-          number:
-            type: string
-            example: '25'
-          city:
-            type: string
-            example: La Habana
-          country:
-            type: string
-            example: CUB
-        type: object
-      title:
-        type: string
-        example: 'Minister of State for Special Affairs, Land and Resettlement Program'
-      sanctioned_program:
-        type: string
-        example: us-ofac/CUBA
-      sanction_summary:
-        type: string
-        example: Also identified as National Security Advisor
-      type:
-        type: string
-        example: individual
-      additional_properties:
+              example: Avenida del Ferrocarril
+      id_docs:
         type: array
         items:
           type: object
           properties:
-            photo_link:
+            country:
               type: string
-              example: 'http://xxxx.com/url.jpg'
+              example: COL
+            number:
+              type: string
+              example: 123456789Y
+            type:
+              type: string
+              example: DNI
+      first_name:
+        type: string
+        example: Aureliano
+      last_name:
+        type: string
+        example: Buendía
+      last_name2:
+        type: string
+        example: García
+      last_name3:
+        type: string
+        example: Marquez
+      last_name4:
+        type: string
+        example: Iguarán
+      middle_name:
+        type: string
+        example: Gabriel
+      nationality:
+        type: string
+        example: Colombian
+      normalized_name:
+        type: string
+        example: AURELIANO GABRIEL BUENDIA GARCIA MARQUEZ IGUARAN
+      ordered_name:
+        type: string
+        example: AURELIANO BUENDIA GABRIEL GARCIA IGUARAN MARQUEZ
+      sanction_program:
+        type: string
+        example: Magic Realism
+      sanction_summary:
+        type: string
+        example: 100 años de soledad
+      title:
+        type: string
+        example: Colonel
+      type:
+        type: string
+        example: Special
+    type: object
+  CustomBlacklistRecordPost:
+    required:
+      - first_name
+    properties:
+      additional_properties:
+        type: object
+      addresses:
+        type: array
+        items:
+          type: object
+          properties:
+            city:
+              type: string
+              example: Macondo
+            country:
+              type: string
+              example: COL
+            number:
+              type: string
+              example: '14, Escalera Izquierda'
+            postal_code:
+              type: string
+              example: '1234'
+            street:
+              type: string
+              example: Avenida del Ferrocarril
+      id_docs:
+        type: array
+        items:
+          type: object
+          required:
+            - number
+          properties:
+            country:
+              type: string
+              example: COL
+            number:
+              type: string
+              example: 123456789Y
+            type:
+              type: string
+              example: DNI
+      first_name:
+        type: string
+        example: Aureliano
+      last_name:
+        type: string
+        example: Buendía
+      last_name2:
+        type: string
+        example: García
+      last_name3:
+        type: string
+        example: Marquez
+      last_name4:
+        type: string
+        example: Iguarán
+      middle_name:
+        type: string
+        example: Gabriel
+      nationality:
+        type: string
+        example: Colombian
+      sanction_program:
+        type: string
+        example: Magic Realism
+      sanction_summary:
+        type: string
+        example: 100 años de soledad
+      title:
+        type: string
+        example: Colonel
+      type:
+        type: string
+        example: Special
     type: object
   MatchRequest:
     description: MatchRequest
@@ -814,6 +908,9 @@ definitions:
         example: TheIdOfYourCustomerIfExists
       min_scoring:
         type: number
+        example: 0.9
+      max_expansions:
+        type: number
         example: 0
       filters:
         type: array
@@ -823,32 +920,18 @@ definitions:
             full_name:
               type: string
               example: Juan Garcia Cortes
-      blacklists:
-        type: array
-        items:
-          type: string
-        example:
-          - OFAC
-          - UK
+      use_whitelists:
+        type: boolean
   Error:
     type: object
-    required:
-      - code
-      - message
     properties:
       code:
         type: string
       message:
         type: string
   MatchConfiguration:
-    required:
-      - filters
-      - search_blacklists
-      - min_score
-      - max_expansions
-      - use_whitelists
     properties:
-      filters:
+      preprocessors:
         type: array
         items:
           type: string
@@ -872,10 +955,12 @@ definitions:
         type: boolean
         example: true
   CustomerNotify:
+    required:
+      - id
     properties:
       id:
         type: string
-        example: UniqueIdOfTheCustomer
+        example: YourUniqueCustomerId
       fist_name:
         type: string
         example: Juan
@@ -892,12 +977,6 @@ definitions:
         type: string
         example: individual
       address:
-        required:
-          - street
-          - number
-          - postal_code
-          - city
-          - country
         properties:
           street:
             type: string
@@ -920,7 +999,7 @@ definitions:
         example: ESP
       date_birth:
         type: string
-        example: '1984-01-14T02:07:26+00:00'
+        example: '1984-01-14T02:07:26Z'
       city_birth:
         type: string
         example: Madrid
@@ -978,7 +1057,7 @@ definitions:
     properties:
       id:
         type: string
-        example: UniqueIdOfTheCustomer
+        example: YourUniqueCustomerId
       fist_name:
         type: string
         example: Juan
@@ -987,7 +1066,7 @@ definitions:
         example: José
       last_name:
         type: string
-        example: Perez
+        example: Pérez
       last_name2:
         type: string
         example: Lozano
@@ -1023,7 +1102,7 @@ definitions:
         example: ESP
       date_birth:
         type: string
-        example: '1984-01-14T02:07:26+00:00'
+        example: '1984-01-14'
       city_birth:
         type: string
         example: Madrid
@@ -1045,6 +1124,12 @@ definitions:
       occupation:
         type: string
         example: Developer
+      normalized_name:
+        type: string
+        example: JUAN JOSE PEREZ LOZANO
+      ordered_name:
+        type: string
+        example: JOSE JUAN LOZANO PEREZ
       documents:
         type: array
         items:
@@ -1075,20 +1160,7 @@ definitions:
               example:
                 - 'http://images.client.com/1234123412341234'
                 - 'http://images.client.com/1234123412341235'
-      normalized_name:
-        type: string
-        example: Juan José Perez Lozano
-      ordered_name:
-        type: string
-        example: Juan Jose Lozano Perez
   BlacklistStatus:
-    required:
-      - id
-      - description
-      - source
-      - last_updated_on
-      - total_registries
-      - additional_properties
     properties:
       id:
         type: string
@@ -1101,7 +1173,7 @@ definitions:
         example: 'https://www.treasury.gov/resource-center/sanctions/sdn-list/pages/consolidated.aspx'
       last_updated_on:
         type: string
-        example: '2019-01-14T02:07:26+00:00'
+        example: '2019-01-14T02:07:26Z'
       total_registries:
         type: number
         example: 20987
@@ -1109,10 +1181,6 @@ definitions:
         type: array
         items:
           type: object
-          properties:
-            photo_link:
-              type: string
-              example: Link to the photo of the person
   CustomBlacklistPost:
     required:
       - short_name
@@ -1124,16 +1192,9 @@ definitions:
       description:
         type: string
         example: Defaulter Blacklist created by Finance Department
+      additional_properties:
+        type: object
   CustomBlacklist:
-    required:
-      - id
-      - short_name
-      - description
-      - last_updated_on
-      - total_registries
-      - created_by
-      - created_on
-      - active
     properties:
       id:
         type: string
@@ -1146,7 +1207,7 @@ definitions:
         example: Defaulter Blacklist created by Finance Department
       last_updated_on:
         type: string
-        example: '2019-01-14T02:07:26+00:00'
+        example: '2019-01-14T02:07:26Z'
       total_registries:
         type: number
         example: 35
@@ -1155,10 +1216,12 @@ definitions:
         example: user
       created_on:
         type: string
-        example: '2018-01-10T02:07:26+00:00'
+        example: '2018-01-10T02:07:26Z'
       active:
         type: boolean
         example: true
+      additional_properties:
+        type: object
   GenericCreatedDto:
     required:
       - id
@@ -1171,10 +1234,6 @@ definitions:
       - filter
     properties:
       filter:
-        required:
-          - document_number
-          - full_name
-          - id
         properties:
           document_number:
             type: string
@@ -1190,11 +1249,6 @@ definitions:
         type: string
         example: 'After having the proper documentation, it''s age is different from the one of the blacklist record in the OFAC'
   WhitelistGet:
-    required:
-      - id
-      - filter
-      - created_by
-      - created_on
     properties:
       id:
         type: string
@@ -1223,13 +1277,8 @@ definitions:
         example: user
       created_on:
         type: string
-        example: '2018-01-10T02:07:26+00:00'
+        example: '2018-01-10T02:07:26Z'
   NotificationEvent:
-    required:
-      - id
-      - event_type
-      - date_event
-      - event_info
     properties:
       id:
         type: string
@@ -1239,12 +1288,8 @@ definitions:
         example: CustomerBlacklistedOnUpdate
       date_event:
         type: string
-        example: '2018-01-10T02:07:26+00:00'
+        example: '2018-01-10T02:07:26Z'
       event_info:
-        required:
-          - message
-          - blacklist
-          - hit
         properties:
           message:
             type: string
@@ -1253,19 +1298,11 @@ definitions:
             type: string
             example: OFAC
           hit:
-            required:
-              - blacklist
-              - scoring
-              - registry
             properties:
               blacklist:
                 type: string
                 example: OFAC
               scoring:
-                required:
-                  - total
-                  - terms
-                  - similar
                 properties:
                   total:
                     type: number
@@ -1278,22 +1315,6 @@ definitions:
                     example: 0.78
                 type: object
               registry:
-                required:
-                  - id
-                  - source
-                  - updated_at
-                  - first_name
-                  - last_name
-                  - last_name2
-                  - full_name
-                  - normalized_name
-                  - nationality
-                  - address
-                  - title
-                  - sanctioned_program
-                  - sanction_summary
-                  - type
-                  - additional_properties
                 properties:
                   id:
                     type: string
@@ -1303,7 +1324,7 @@ definitions:
                     example: OFAC
                   updated_at:
                     type: string
-                    example: '2019-01-14T02:07:26+00:00'
+                    example: '2019-01-14T02:07:26Z'
                   first_name:
                     type: string
                     example: Juan
@@ -1323,12 +1344,6 @@ definitions:
                     type: string
                     example: CUB
                   address:
-                    required:
-                      - summary
-                      - street
-                      - number
-                      - city
-                      - country
                     properties:
                       summary:
                         type: string
@@ -1370,16 +1385,8 @@ definitions:
             type: object
         type: object
   MatchConfigurationGet:
-    required:
-      - filters
-      - search_blacklists
-      - min_score
-      - max_expansions
-      - use_whitelists
-      - last_update_on
-      - last_update_by
     properties:
-      filters:
+      preprocessors:
         type: array
         items:
           type: string
@@ -1407,4 +1414,4 @@ definitions:
         example: user
       last_update_on:
         type: string
-        example: '2019-01-14T02:07:26+00:00'
+        example: '2019-01-14T02:07:26Z'
