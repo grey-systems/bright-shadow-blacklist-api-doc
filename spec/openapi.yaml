@@ -909,11 +909,11 @@ definitions:
               type: "string"
               example: "Avenida del Ferrocarril"
       id_docs: 
-        required:
-          - "number"
         type: "array"
         items: 
           type: "object"
+          required:
+            - "number"
           properties: 
             country: 
               type: "string"
