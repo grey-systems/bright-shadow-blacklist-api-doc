@@ -613,6 +613,11 @@ paths:
           description: Success, a new customer has been created
         "200": 
           description: Success, an existent customer has been modified
+        "400": 
+          description: The customer's id is required
+          schema: 
+            $ref: '#/definitions/Error'
+            
   "/customer/{id}": 
     get: 
       tags:
@@ -624,6 +629,7 @@ paths:
       parameters:
         - name: id
           in: path
+          description: Your unique customer's id
           required: true
           type: string
       responses:
@@ -728,7 +734,7 @@ definitions:
         example: "512ee1da-1ac3-4289-936f-2c8c75860b8b"
       response_date: 
         type: "string"
-        example: "2019-01-14T02:07:26+00:00"
+        example: "2019-01-14T02:07:26Z"
       whitelisted: 
         type: "boolean"
         example: false
@@ -811,7 +817,7 @@ definitions:
                   example: "OFAC"
                 updated_at: 
                   type: "string"
-                  example: "2019-01-14T02:07:26+00:00"
+                  example: "2019-01-14T02:07:26Z"
                 first_name: 
                   type: "string"
                   example: "Juan"
@@ -902,10 +908,8 @@ definitions:
     properties: 
       id: 
         type: "string"
-        example: "YourCustomerId"
+        example: "YourUniqueCustomerId"
       additional_properties: 
-        required: []
-        properties: {}
         type: "object"
       addresses: 
         type: "array"
@@ -1144,7 +1148,7 @@ definitions:
     properties: 
       id: 
         type: "string"
-        example: "UniqueIdOfTheCustomer"
+        example: "YourUniqueCustomerId"
       fist_name: 
         type: "string"
         example: "Juan"
@@ -1189,7 +1193,7 @@ definitions:
         example: "ESP"
       date_birth: 
         type: "string"
-        example: "1984-01-14T02:07:26+00:00"
+        example: "1984-01-14T02:07:26Z"
       city_birth: 
         type: "string"
         example: "Madrid"
@@ -1248,7 +1252,7 @@ definitions:
     properties: 
       id: 
         type: "string"
-        example: "UniqueIdOfTheCustomer"
+        example: "YourUniqueCustomerId"
       fist_name: 
         type: "string"
         example: "Juan"
@@ -1257,7 +1261,7 @@ definitions:
         example: "José"
       last_name: 
         type: "string"
-        example: "Perez"
+        example: "Pérez"
       last_name2: 
         type: "string"
         example: "Lozano"
@@ -1293,7 +1297,7 @@ definitions:
         example: "ESP"
       date_birth: 
         type: "string"
-        example: "1984-01-14T02:07:26+00:00"
+        example: "1984-01-14"
       city_birth: 
         type: "string"
         example: "Madrid"
@@ -1315,6 +1319,12 @@ definitions:
       occupation: 
         type: "string"
         example: "Developer"
+      normalized_name: 
+        type: "string"
+        example: "JUAN JOSE PEREZ LOZANO"
+      ordered_name: 
+        type: "string"
+        example: "JOSE JUAN LOZANO PEREZ"
       documents: 
         type: "array"
         items: 
@@ -1345,12 +1355,6 @@ definitions:
               example: 
                 - "http://images.client.com/1234123412341234"
                 - "http://images.client.com/1234123412341235"
-      normalized_name: 
-        type: "string"
-        example: "Juan José Perez Lozano"
-      ordered_name: 
-        type: "string"
-        example: "Juan Jose Lozano Perez"
   
   BlacklistStatus:
     required: 
@@ -1372,7 +1376,7 @@ definitions:
         example: "https://www.treasury.gov/resource-center/sanctions/sdn-list/pages/consolidated.aspx"
       last_updated_on: 
         type: "string"
-        example: "2019-01-14T02:07:26+00:00"
+        example: "2019-01-14T02:07:26Z"
       total_registries: 
         type: "number"
         example: 20987
@@ -1417,7 +1421,7 @@ definitions:
         example: "Defaulter Blacklist created by Finance Department"
       last_updated_on: 
         type: "string"
-        example: "2019-01-14T02:07:26+00:00"
+        example: "2019-01-14T02:07:26Z"
       total_registries: 
         type: "number"
         example: 35
@@ -1426,7 +1430,7 @@ definitions:
         example: "user"
       created_on: 
         type: "string"
-        example: "2018-01-10T02:07:26+00:00"
+        example: "2018-01-10T02:07:26Z"
       active: 
         type: "boolean"
         example: true
@@ -1498,7 +1502,7 @@ definitions:
         example: "user"
       created_on: 
         type: "string"
-        example: "2018-01-10T02:07:26+00:00"
+        example: "2018-01-10T02:07:26Z"
 
 
   NotificationEvent: 
@@ -1516,7 +1520,7 @@ definitions:
         example: "CustomerBlacklistedOnUpdate"
       date_event: 
         type: "string"
-        example: "2018-01-10T02:07:26+00:00"
+        example: "2018-01-10T02:07:26Z"
       event_info: 
         required: 
           - "message"
@@ -1580,7 +1584,7 @@ definitions:
                     example: "OFAC"
                   updated_at: 
                     type: "string"
-                    example: "2019-01-14T02:07:26+00:00"
+                    example: "2019-01-14T02:07:26Z"
                   first_name: 
                     type: "string"
                     example: "Juan"
@@ -1686,5 +1690,5 @@ definitions:
         example: "user"
       last_update_on: 
         type: "string"
-        example: "2019-01-14T02:07:26+00:00"
+        example: "2019-01-14T02:07:26Z"
    
