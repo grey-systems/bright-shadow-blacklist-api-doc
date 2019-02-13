@@ -119,7 +119,6 @@ security:
 
 
 paths:
-
   "/event/{id}/ack":
     post: 
       tags: 
@@ -132,22 +131,22 @@ paths:
       parameters: 
         - name: id
           in: path
-          description: the id of the event to be acked 
+          description: The id of the event to be acked 
           type: string
           required: true
           
       responses: 
-        "200": 
+        "204": 
           description: Success, event is acked
         "404":
-          description: The event identified by id does not exists
+          description: Not Found, the event identified by id does not exists
           
       
   "/event":
     get:
       tags:
        - Notifications
-      summary: gets all non acknowledged notifications
+      summary: Gets all non acknowledged notifications
       operationId: getNotifications
       description: | 
         Returns all events that are not yet acknowledged. 
@@ -168,7 +167,7 @@ paths:
         - application/json
       responses: 
         "200": 
-          description: Success
+          description: Success, all non acknowledged notifications are retuned
           schema:
             type: array
             items: 
@@ -186,7 +185,7 @@ paths:
         - application/json
       responses: 
         "200": 
-          description: Success, all records within whitelist is returned
+          description: Success, all records within whitelist are returned
           schema:
             type: array
             items: 
@@ -317,7 +316,7 @@ paths:
       description: | 
         Creates a custom blacklist in the system. 
         
-        * `short_name` cannot be duplicated with any other custom blacklist created. 
+        * `short_name` cannot be duplicated with any other custom blacklist's name already created. 
         
         * `short_name` and description are mandatory
         
@@ -379,7 +378,7 @@ paths:
         - application/json
       responses: 
         "204": 
-          description: Success, new Custom blacklist is saved in Bright Shadow
+          description: Success, the custom blacklist is modified in Bright Shadow
         "404": 
           description: Not Found, the custom blacklist identified by {id} does not exist
           schema: 
@@ -481,7 +480,7 @@ paths:
         - application/json
       responses: 
         "200": 
-          description: Success, all record within the specified blacklist returned
+          description: Success, all record within the specified blacklist are returned
           schema:
             type: array
             items: 
@@ -609,9 +608,9 @@ paths:
             $ref: '#/definitions/CustomerNotify'
       responses:
         "201": 
-          description: Success, a new customer has been created
+          description: Success, new customer is created
         "200": 
-          description: Success, an existent customer has been modified
+          description: Success, the customer is modified
         "400": 
           description: Bad Request, the customer's id is required
           schema: 
@@ -633,11 +632,11 @@ paths:
           type: string
       responses:
         "200": 
-          description: Success, new customer is returned
+          description: Success, the customer is returned
           schema:
             $ref: '#/definitions/Customer'
         "404": 
-          description: Customer not found
+          description: Not Found, The customer does not exist in Bright Shadow
 
   "/match/config": 
     get: 
