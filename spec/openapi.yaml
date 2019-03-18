@@ -24,7 +24,7 @@ info:
     
     * **Official/Public Blacklist**: Manage the lifecycle of official and public blacklist published by different entities including OFAC, EU, UK, etc.. including automatic updates to the registries of the lists.
     * **Custom Blacklist**: Manage custom/internal blacklists, giving the ability to our customers to create/modify/delete records inside custom blacklists. 
-    * **Similar Matching Algorithms**: GreySystems have designed and implemented a full-featured algorithm to semantically search (fuzzy search) and provide an scoring for customers against the different blacklist configured for a customer/entity. A full detailed explanation about the matching algorithm can be found at [BLACKLIST MATCHING PLATFORM FOR FINANCIAL ENTITIES BY GreySystems.pdf](https://github.com/grey-systems/bright-shadow-blacklist-api-doc/raw/master/assets/blacklist.pdf)
+    * **Similar Matching Algorithms**: GreySystems have designed and implemented a full-featured algorithm to semantically search (fuzzy search) and provide an scoring for customers against the different blacklist configured for a customer/entity.
     * **Whitelists**: Create and manage custom whitelists
     * **Customer Management**: This module can maintain the lifecycle of the customers/entities against the blacklist, providing real time updates when an existent customer is matched against an existing blacklist periodically. 
     * **Notifications**: Receives notifications in a RESTFul way with the latest events happened, like existent customer matched against a blacklist update, duplicated customers, etc...
@@ -320,8 +320,16 @@ paths:
         
         * `short_name` and description are mandatory
         
-        * The field `additional_properties` is a map where you can put additional descriptive information about the custom blacklist
-      
+        * The field `additional_properties` is a map where you can put additional descriptive information about the custom blacklist, in a for of key-value data. These `additional_properties` determines that the records of this blacklist could contain this information (note that is not mandatory that a record could contain this extra information). 
+        
+        For example\:
+        ```
+        {
+          "photo_link": "Link of the photo id of the customer",
+          "resolution_href": "Link to the legal resolution published in which the person is sanctioned"
+        }
+        ```
+        
         It returns an unique identifier (UUID) for the just created blacklist
         
       operationId: createCustomBlacklist
@@ -986,13 +994,11 @@ definitions:
         type: "number"
         example: 0
       filters: 
-        type: "array"
-        items: 
-          type: "object"
-          properties: 
-            full_name: 
-              type: "string"
-              example: "Juan Garcia Cortes"
+        type: "object"
+        properties: 
+          full_name: 
+            type: "string"
+            example: "Juan Garcia Cortes"
       use_whitelists: 
         type: "boolean"
         
@@ -1300,6 +1306,10 @@ definitions:
         example: true
       additional_properties:
         type: "object"
+        properties:
+          photo_link: 
+            type: "string"
+            example: "Link of the id photo of the person"
         
   GenericCreatedDto:
     required:
