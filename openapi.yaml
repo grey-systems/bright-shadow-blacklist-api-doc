@@ -624,7 +624,7 @@ paths:
 
         These are the current available preprocessors that you can configure: 
           * `ordered`: Alphabetic ordenation of the names's factor
-          * `normalize`: Uppercase the name and deletes al non alphanumeric characters
+          * `normalized`: Uppercase the name and deletes al non alphanumeric characters
           
       parameters:
         - name: matchConfiguration
@@ -652,7 +652,7 @@ paths:
         **Preprocessors**:
         A prepropressor is a transformation mechanism that applies to the `filters` before calculating the score of the operation, so that the score can be calculated in a more homogeneus way, eliminating impacts due to local language of the customer, for instance, accented letters in spanish or german, or special characters. 
 
-          * `normalize`: Replaces all non-ascii character (accented letters, special characters, etc..) by its corresponding ascii ones, for instance, `á` will be replaced by `a`. IF there is no correspondence between an non-ascii character and an ascii character, then the character will be removed
+          * `normalized`: Replaces all non-ascii character (accented letters, special characters, etc..) by its corresponding ascii ones, for instance, `á` will be replaced by `a`. IF there is no correspondence between an non-ascii character and an ascii character, then the character will be removed
           
 
         **Response**: 
@@ -953,7 +953,7 @@ definitions:
           type: string
         example:
           - ordered
-          - normalize
+          - normalized
       search_blacklists:
         type: array
         items:
@@ -1412,7 +1412,7 @@ definitions:
           type: string
         example:
           - ordered
-          - normalize
+          - normalized
       search_blacklists:
         type: array
         items:
