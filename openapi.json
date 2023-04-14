@@ -15,7 +15,7 @@
       "url": "http://www.greysystems.eu/#contact"
     },
     "license": {
-      "name": "All Rights reserved GreySystems 2019",
+      "name": "All Rights reserved GreySystems 2021",
       "url": "http://www.greysystems.eu"
     },
     "x-logo": {
@@ -803,7 +803,7 @@
         },
         "response_date": {
           "type": "string",
-          "example": "2019-01-14T02:07:26Z"
+          "example": "2021-01-14T02:07:26Z"
         },
         "whitelisted": {
           "type": "boolean",
@@ -1485,7 +1485,7 @@
         },
         "last_updated_on": {
           "type": "string",
-          "example": "2019-01-14T02:07:26Z"
+          "example": "2021-01-14T02:07:26Z"
         },
         "total_registries": {
           "type": "number",
@@ -1534,7 +1534,7 @@
         },
         "last_updated_on": {
           "type": "string",
-          "example": "2019-01-14T02:07:26Z"
+          "example": "2021-01-14T02:07:26Z"
         },
         "total_registries": {
           "type": "number",
@@ -1703,7 +1703,7 @@
                     },
                     "updated_at": {
                       "type": "string",
-                      "example": "2019-01-14T02:07:26Z"
+                      "example": "2021-01-14T02:07:26Z"
                     },
                     "first_name": {
                       "type": "string",
@@ -1833,7 +1833,7 @@
         },
         "last_update_on": {
           "type": "string",
-          "example": "2019-01-14T02:07:26Z"
+          "example": "2021-01-14T02:07:26Z"
         }
       }
     }

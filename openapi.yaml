@@ -71,7 +71,7 @@ info:
     email: developers@greysystems.eu
     url: 'http://www.greysystems.eu/#contact'
   license:
-    name: All Rights reserved GreySystems 2019
+    name: All Rights reserved GreySystems 2021
     url: 'http://www.greysystems.eu'
   x-logo:
     url: 'https://github.com/grey-systems/bright-shadow-blacklist-api-doc/raw/master/assets/logo.png'
@@ -699,7 +699,7 @@ definitions:
         example: 512ee1da-1ac3-4289-936f-2c8c75860b8b
       response_date:
         type: string
-        example: '2019-01-14T02:07:26Z'
+        example: '2021-01-14T02:07:26Z'
       whitelisted:
         type: boolean
         example: false
@@ -1189,7 +1189,7 @@ definitions:
         example: 'https://www.treasury.gov/resource-center/sanctions/sdn-list/pages/consolidated.aspx'
       last_updated_on:
         type: string
-        example: '2019-01-14T02:07:26Z'
+        example: '2021-01-14T02:07:26Z'
       total_registries:
         type: number
         example: 20987
@@ -1223,7 +1223,7 @@ definitions:
         example: Defaulter Blacklist created by Finance Department
       last_updated_on:
         type: string
-        example: '2019-01-14T02:07:26Z'
+        example: '2021-01-14T02:07:26Z'
       total_registries:
         type: number
         example: 35
@@ -1344,7 +1344,7 @@ definitions:
                     example: OFAC
                   updated_at:
                     type: string
-                    example: '2019-01-14T02:07:26Z'
+                    example: '2021-01-14T02:07:26Z'
                   first_name:
                     type: string
                     example: Juan
@@ -1434,4 +1434,4 @@ definitions:
         example: user
       last_update_on:
         type: string
-        example: '2019-01-14T02:07:26Z'
+        example: '2021-01-14T02:07:26Z'
